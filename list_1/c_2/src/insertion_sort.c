@@ -33,10 +33,14 @@ int main(int argc, char** argv) {
         arr[i] = rand() % n;
     }
     
-    clock_t start_time = clock();
+    struct timespec ts_start;
+    struct timespec ts_end;
+    
+    clock_gettime(CLOCK_MONOTONIC, &ts_start);
     insertion_sort(arr, n);
-    clock_t end_time = clock();
-    double time_taken = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    clock_gettime(CLOCK_MONOTONIC, &ts_end);
+
+    double time_taken = (double)(ts_end.tv_sec - ts_start.tv_sec) + ((double)(ts_end.tv_nsec - ts_start.tv_nsec)/1000000000L);
     printf("%lf\n", time_taken);
 
     free(arr);

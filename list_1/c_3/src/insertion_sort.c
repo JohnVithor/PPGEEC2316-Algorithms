@@ -28,25 +28,28 @@ int main(int argc, char** argv) {
         printf("Uso: %s <n> <seed> (n > 1 e seed >=0)\n", argv[0]);
         return 1;
     }
-    clock_t start_time;
-    clock_t end_time;
+    struct timespec ts_start;
+    struct timespec ts_end;
 
     int* arr = create_desc_array(n);
-    start_time = clock();
+    
+    clock_gettime(CLOCK_MONOTONIC, &ts_start);
     insertion_sort(arr, n);
-    end_time = clock();
-    double time_taken_worse = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    clock_gettime(CLOCK_MONOTONIC, &ts_end);
 
-    start_time = clock();
+    double time_taken_worse = (double)(ts_end.tv_sec - ts_start.tv_sec) + ((double)(ts_end.tv_nsec - ts_start.tv_nsec)/1000000000L);
+
+    clock_gettime(CLOCK_MONOTONIC, &ts_start);
     insertion_sort(arr, n);
-    end_time = clock();
-    double time_taken_best = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    clock_gettime(CLOCK_MONOTONIC, &ts_end);
+    double time_taken_best = (double)(ts_end.tv_sec - ts_start.tv_sec) + ((double)(ts_end.tv_nsec - ts_start.tv_nsec)/1000000000L);
 
     fill_random(arr, n, seed);
-    start_time = clock();
+    
+    clock_gettime(CLOCK_MONOTONIC, &ts_start);
     insertion_sort(arr, n);
-    end_time = clock();
-    double time_taken_avg = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    clock_gettime(CLOCK_MONOTONIC, &ts_end);
+    double time_taken_avg = (double)(ts_end.tv_sec - ts_start.tv_sec) + ((double)(ts_end.tv_nsec - ts_start.tv_nsec)/1000000000L);
 
     printf("%lf,%lf,%lf\n", time_taken_worse, time_taken_best, time_taken_avg);
 

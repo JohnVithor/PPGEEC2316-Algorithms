@@ -1,6 +1,9 @@
 CC = clang++
 CFLAGS = -Wall -O3
-all: ./bin/insertion_sort ./bin/insertion_sort_ram
+all: mkdir ./bin/insertion_sort ./bin/insertion_sort_ram
+
+mkdir:
+	mkdir -p ./bin
 
 ./bin/insertion_sort: ./bin/insertion_sort.o
 	$(CC) $(CFLAGS) -o ./bin/insertion_sort ./bin/insertion_sort.o
