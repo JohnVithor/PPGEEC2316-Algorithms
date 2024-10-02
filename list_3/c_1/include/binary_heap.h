@@ -30,7 +30,6 @@ void heap_sort(Data* arr, unsigned int n);
 
 Result get_max(BinaryHeap* heap);
 Result extract_max(BinaryHeap* heap);
-Result increase_key(BinaryHeap* heap, Data* data, unsigned int k);
 Result insert(BinaryHeap* heap, Data data);
 
 #endif // _BINARY_HEAP_H_

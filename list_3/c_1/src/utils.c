@@ -20,17 +20,49 @@ void print_array(Data* arr, int n) {
 }
 
 void print_heap(BinaryHeap* heap) {
-    int i = 0;
-    int j = 0;
-    int ident = 0;
-    int* aux = (int*) malloc(heap->size * sizeof(int));
-    while (i < heap->size) {
-        printf("%*s", ident, "");
-        printf("key: %d - name: %s\n", heap->data[i].key, heap->data[i].name);
-        i++;
-        if (i == 1 || i == 3 || i == 7 || i == 15 || i == 31 || i == 63) {
-            ident += 2;
+    if (heap == NULL || heap->size == 0) {
+        printf("Heap vazia!\n");
+        return;
+    }
+
+    int height = 0;
+    unsigned int size = heap->size;
+    while (size > 0) {
+        size >>= 1;
+        height++;
+    }
+
+    // Calcula o número máximo de nós no último nível
+    int max_width = 1 << (height - 1);
+    
+    // Para cada nível da árvore
+    for (int level = 0; level < height; level++) {
+        int level_nodes = 1 << level;
+        int node_spacing = max_width / (1 << level);
+        
+        // Espaçamento inicial para centralizar o nível
+        for (int i = 0; i < node_spacing; i++) {
+            printf("  ");
+        }
+        
+        // Imprime os nós do nível atual
+        for (int i = (1 << level) - 1; i < (1 << (level + 1)) - 1 && i < heap->size; i++) {
+            printf("%d", heap->data[i].key);
+            
+            // Espaçamento entre nós
+            for (int j = 0; j < node_spacing * 2 ; j++) {
+                printf("  ");
+            }
+        }
+        printf("\n");
+        
+        // Imprime as conexões entre os níveis (exceto para o último nível)
+        if (level < height - 1) {
+            // Espaçamento inicial para as conexões
+            for (int i = 0; i < node_spacing / 2 - 1; i++) {
+                printf("  ");
+            }
+            printf("\n");
         }
     }
-    free(aux);
 }

@@ -80,25 +80,6 @@ Result extract_max(BinaryHeap* heap) {
     return r;
 }
 
-Result increase_key(BinaryHeap* heap, Data* data, unsigned int k) {
-    Result r;
-    if (k < data->key) {
-        r.ok = 0;
-        sprintf(r.error , "new key is smaller than current key");
-        return r;
-    }
-    data->key = k;
-    unsigned int i = heap->size;
-    while (i > 0 && heap->data[parent(i)].key < heap->data[i].key) {
-        Data swap = heap->data[i];
-        heap->data[i] = heap->data[parent(i)];
-        heap->data[parent(i)] = swap;
-        i = parent(i);
-    }
-    r.ok = 1;
-    return r;
-}
-
 Result insert(BinaryHeap* heap, Data data) {
     Result r;
     if (heap->size == heap->capacity) {
@@ -106,11 +87,15 @@ Result insert(BinaryHeap* heap, Data data) {
         sprintf(r.error , "Heap is full");
         return r;
     }
+    heap->data[heap->size] = data;
+    unsigned int i = heap->size;
     heap->size += 1;
-    unsigned int k = data.key;
-    data.key = k; // maybe error
-    heap->data[heap->size-1] = data;
-    increase_key(heap, &data, k);
+    while (i > 0 && heap->data[parent(i)].key < heap->data[i].key) {
+        Data swap = heap->data[i];
+        heap->data[i] = heap->data[parent(i)];
+        heap->data[parent(i)] = swap;
+        i = parent(i);
+    }
     r.ok = 1;
     return r;
 }

@@ -17,9 +17,6 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    struct timespec ts_start;
-    struct timespec ts_end;
-
     int* arr = create_random_array(n, seed);
 
     Data* data = (Data*) malloc(n * sizeof(Data));
@@ -28,6 +25,7 @@ int main(int argc, char** argv) {
         sprintf(data[i].name, "name_%d", i);
     }
 
+    printf("Initial Array:\n");
     print_array(data, n);
 
     BinaryHeap heap = build_max_heap(data, n);
