@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "matrix.h"
 
 void matrix_multiply_strassen(int* a, int* b, int* c, unsigned int n) {
@@ -45,29 +46,29 @@ void matrix_multiply_strassen(int* a, int* b, int* c, unsigned int n) {
         }
     }
 
-    add(a11, a22, aux1, mid);
-    add(b11, b22, aux2, mid);
-    multiply(aux1, aux2, m1, mid);
+    matrix_add(a11, a22, aux1, mid);
+    matrix_add(b11, b22, aux2, mid);
+    matrix_multiply_strassen(aux1, aux2, m1, mid);
     
-    add(a21, a22, aux1, mid);
-    multiply(aux1, b11, m2, mid);
+    matrix_add(a21, a22, aux1, mid);
+    matrix_multiply_strassen(aux1, b11, m2, mid);
 
-    subtract(b12, b22, aux2, mid);
-    multiply(a11, aux2, m3, mid);
+    matrix_subtract(b12, b22, aux2, mid);
+    matrix_multiply_strassen(a11, aux2, m3, mid);
 
-    subtract(b21, b11, aux1, mid);
-    multiply(a22, aux1, m4, mid);
+    matrix_subtract(b21, b11, aux1, mid);
+    matrix_multiply_strassen(a22, aux1, m4, mid);
 
-    add(a11, a12, aux2, mid);
-    multiply(aux2, b22, m5, mid);
+    matrix_add(a11, a12, aux2, mid);
+    matrix_multiply_strassen(aux2, b22, m5, mid);
 
-    subtract(a21, a11, aux1, mid);
-    add(b11, b12, aux2, mid);
-    multiply(aux1, aux2, m6, mid);
+    matrix_subtract(a21, a11, aux1, mid);
+    matrix_add(b11, b12, aux2, mid);
+    matrix_multiply_strassen(aux1, aux2, m6, mid);
 
-    subtract(a12, a22, aux1, mid);
-    add(b21, b22, aux2, mid);
-    multiply(aux1, aux2, m7, mid);
+    matrix_subtract(a12, a22, aux1, mid);
+    matrix_add(b21, b22, aux2, mid);
+    matrix_multiply_strassen(aux1, aux2, m7, mid);
 
     for (unsigned int i = 0; i < mid; ++i) {
         for (unsigned int j = 0; j < mid; ++j) {

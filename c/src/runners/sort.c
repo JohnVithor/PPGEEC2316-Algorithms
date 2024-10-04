@@ -23,18 +23,18 @@ int main(int argc, char *argv[]) {
     char* sort_names[6] = {"insertion_sort", "merge_sort", "quick_sort", "randomized_quick_sort", "count_sort", "radix_sort"};
 
     int* arr = create_random_array(n, seed);
-    double time_spent_random = measure_sort_time(arr, n, sorts[algoritmo]);
+    double time_spent_random = measure_time_sort(arr, n, sorts[algoritmo]);
     if (validate_sorting(arr, n)) {
         printf("Erro ao reverter o array random\n");
         return 1;
     }
-    double time_spent_best = measure_sort_time(arr, n, sorts[algoritmo]);
+    double time_spent_best = measure_time_sort(arr, n, sorts[algoritmo]);
     if (validate_sorting(arr, n)) {
         printf("Erro ao reverter o array crescente\n");
         return 1;
     }
     revert_array(arr, n);
-    double time_spent_worse = measure_sort_time(arr, n, sorts[algoritmo]);
+    double time_spent_worse = measure_time_sort(arr, n, sorts[algoritmo]);
     if (validate_sorting(arr, n)) {
         printf("Erro ao reverter o array decrescente\n");
         return 1;

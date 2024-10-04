@@ -38,7 +38,7 @@ void print_array(int* arr, unsigned int n) {
     printf("%d]\n", arr[n-1]);
 }
 
-double measure_sort_time(int* arr, unsigned int n, void (*sort)(int*, unsigned int)) {
+double measure_time_sort(int* arr, unsigned int n, void (*sort)(int*, unsigned int)) {
     struct timespec ts_start;
     struct timespec ts_end;
     clock_gettime(CLOCK_MONOTONIC, &ts_start);
