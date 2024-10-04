@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "sort.h"
 
 void merge(int* left, unsigned int left_size, int* right, unsigned int right_size, int* ret) {

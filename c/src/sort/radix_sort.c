@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "sort.h"
 #include "utils.h"
 

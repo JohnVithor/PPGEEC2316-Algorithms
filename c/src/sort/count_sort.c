@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "sort.h"
 #include "utils.h"
 
@@ -20,5 +21,5 @@ void count_sort(int* arr, unsigned int size) {
             ++j;
         }
     }
-    free(c);
+    free(counter);
 }

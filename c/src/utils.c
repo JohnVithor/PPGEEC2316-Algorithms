@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include "utils.h"
 
 int* create_random_array(int n, int seed) {
@@ -20,16 +21,14 @@ void revert_array(int* arr, unsigned int n) {
     }
 }
 
-void validate_sorting(int* arr, int n) {
+char validate_sorting(int* arr, unsigned int n) {
     for (int i = 0; i < n - 1; i++) {
         if (arr[i] > arr[i + 1]) {
-            printf("Erro de ordenação: %d < %d\n", arr[i], arr[i + 1]);
-            return;
+            return 1;
         }
     }
-    printf("Ordenação correta\n");
+    return 0;
 }
-
 
 void print_array(int* arr, unsigned int n) {
     printf("Array: [");
@@ -57,4 +56,3 @@ int array_max_value(int* arr, unsigned int size) {
     }
     return max;
 }
-

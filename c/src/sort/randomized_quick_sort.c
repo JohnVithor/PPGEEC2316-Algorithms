@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "sort.h"
 
 unsigned int randomized_partition(int* arr, unsigned int size) {
@@ -7,6 +8,7 @@ unsigned int randomized_partition(int* arr, unsigned int size) {
     arr[random_pos] = arr[last_pos];
     arr[last_pos] = pivot;
     unsigned int pivot_position = 0;
+    int aux;
     for (unsigned int i = 0; i < size; ++i) {
         if (arr[i] < pivot) {
             aux = arr[pivot_position];
