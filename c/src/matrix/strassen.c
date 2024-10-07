@@ -31,7 +31,6 @@ void matrix_multiply_strassen_internal(int* a, int* b, int* c, unsigned int n, i
     int* aux2 = aux1 + (mid*mid);
     int* remaining_buffer = aux2 + (mid*mid);
 
-
     for (unsigned int i = 0; i < mid; ++i) {
         for (unsigned int j = 0; j < mid; ++j) {
             a11[i * mid + j] = a[i         * n + j      ];
@@ -42,10 +41,6 @@ void matrix_multiply_strassen_internal(int* a, int* b, int* c, unsigned int n, i
             b12[i * mid + j] = b[i         * n + j + mid];
             b21[i * mid + j] = b[(i + mid) * n + j      ];
             b22[i * mid + j] = b[(i + mid) * n + j + mid];
-            c[i         * n + j       ] = 0;
-            c[i         * n + j + mid ] = 0;
-            c[(i + mid) * n + j       ] = 0;
-            c[(i + mid) * n + j + mid ] = 0;
         }
     }
 
@@ -75,8 +70,8 @@ void matrix_multiply_strassen_internal(int* a, int* b, int* c, unsigned int n, i
 
     for (unsigned int i = 0; i < mid; ++i) {
         for (unsigned int j = 0; j < mid; ++j) {
-            c[i * n + j]                = m1[i * mid + j] + m2[i * mid + j] + b21[i * mid + j] - a12[i * mid + j];
-            c[(i + mid) * n + j + mid]  = m1[i * mid + j] - a22[i * mid + j] + b22[i * mid + j] + a21[i * mid + j];
+            c[i * n + j]                = m1[i * mid + j]  + m2[i * mid + j]  + b21[i * mid + j] - a12[i * mid + j];
+            c[(i + mid) * n + j + mid]  = m1[i * mid + j]  - a22[i * mid + j] + b22[i * mid + j] + a21[i * mid + j];
             c[(i + mid) * n + j]        = a22[i * mid + j] + b21[i * mid + j];
             c[i * n + j + mid]          = a12[i * mid + j] + b22[i * mid + j];
         }
