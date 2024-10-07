@@ -25,3 +25,7 @@ void radix_sort(int* arr, unsigned int size) {
     }
     free(c);
 }
+
+unsigned long long radix_sort_ram(int* arr, unsigned int size) {
+    return 0;
+}

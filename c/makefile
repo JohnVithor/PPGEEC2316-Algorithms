@@ -1,7 +1,7 @@
 CC = clang
 CFLAGS = -Wall -O3
 
-all: mkdir ./bin/sort ./bin/matrix
+all: mkdir ./bin/sort ./bin/sort_ram ./bin/matrix
 
 debug: CFLAGS = -Wall -O0 -g
 debug: all
@@ -11,10 +11,16 @@ mkdir:
 
 # Sort
 
+./bin/sort_ram: ./bin/sort_ram.o ./bin/utils.o ./bin/insertion_sort.o ./bin/merge_sort.o ./bin/quick_sort.o ./bin/randomized_quick_sort.o ./bin/count_sort.o ./bin/radix_sort.o
+	$(CC) $(CFLAGS) -o $@ $^
+
 ./bin/sort: ./bin/sort.o ./bin/utils.o ./bin/insertion_sort.o ./bin/merge_sort.o ./bin/quick_sort.o ./bin/randomized_quick_sort.o ./bin/count_sort.o ./bin/radix_sort.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 ./bin/sort.o: src/runners/sort.c
+	$(CC) $(CFLAGS) -I./include -c $^ -o $@
+
+./bin/sort_ram.o: src/runners/sort_ram.c
 	$(CC) $(CFLAGS) -I./include -c $^ -o $@
 
 ./bin/insertion_sort.o: src/sort/insertion_sort.c

@@ -33,3 +33,12 @@ void merge_sort(int* arr, unsigned int size) {
     merge(aux, mid, aux + mid, size - mid, arr);
     free(aux);
 }
+
+
+unsigned long long merge_ram(int* left, unsigned int left_size, int* right, unsigned int right_size, int* ret) {
+    return 0;
+}
+
+unsigned long long merge_sort_ram(int* arr, unsigned int size) {
+    return 0;
+}

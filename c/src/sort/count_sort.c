@@ -23,3 +23,11 @@ void count_sort(int* arr, unsigned int size) {
     }
     free(counter);
 }
+
+unsigned long long count_sort_book_ram(int* arr, unsigned int size) {
+    return 0;
+}
+
+unsigned long long count_sort_ram(int* arr, unsigned int size) {
+    return 0;
+}

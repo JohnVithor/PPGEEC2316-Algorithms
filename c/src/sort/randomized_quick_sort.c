@@ -29,3 +29,11 @@ void randomized_quick_sort(int* arr, unsigned int size) {
         randomized_quick_sort(arr+pivot_position+1, size-pivot_position-1);
     }
 }
+
+unsigned int randomized_partition_ram(int* arr, unsigned int size, unsigned long long* op) {
+    return 0;
+}
+
+unsigned long long randomized_quick_sort_ram(int* arr, unsigned int size) {
+    return 0;
+}
