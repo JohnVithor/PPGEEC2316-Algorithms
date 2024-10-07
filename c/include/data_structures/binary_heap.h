@@ -2,22 +2,22 @@
 #define _BINARY_HEAP_H_
 
 typedef struct Data {
-    unsigned int key;
-    char name[100];
+  unsigned int key;
+  char name[100];
 } Data;
 
 typedef struct BinaryHeapResult {
-    char ok;
-    union {
-        Data data;
-        char error[100];
-    };
+  char ok;
+  union {
+    Data data;
+    char error[100];
+  };
 } BinaryHeapResult;
 
 typedef struct BinaryHeap {
-    Data* data;
-    unsigned int size;
-    unsigned int capacity;
+  Data* data;
+  unsigned int size;
+  unsigned int capacity;
 } BinaryHeap;
 
 unsigned int parent(unsigned int i);
@@ -35,4 +35,4 @@ BinaryHeapResult insert(BinaryHeap* heap, Data data);
 void print_data_array(Data* arr, int n);
 void print_heap(BinaryHeap* heap);
 
-#endif // _BINARY_HEAP_H_
+#endif  // _BINARY_HEAP_H_
