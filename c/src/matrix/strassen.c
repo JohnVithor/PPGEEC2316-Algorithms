@@ -2,7 +2,6 @@
 #include "matrix.h"
 
 void matrix_multiply_strassen(int* a, int* b, int* c, unsigned int n) {
-    // https://www.cs.cmu.edu/afs/cs/academic/class/15750-s17/ScribeNotes/lecture1.pdf
     int* buffer = malloc(4*n*n*sizeof(int));
     matrix_multiply_strassen_internal(a, b, c, n, buffer);
     free(buffer);
@@ -25,11 +24,13 @@ void matrix_multiply_strassen_internal(int* a, int* b, int* c, unsigned int n, i
     int* b21 = b12 + (mid*mid);
     int* b22 = b21 + (mid*mid);
 
-    int* m = b22 + (mid*mid);
+    int* m1 = b22 + (mid*mid);
+    int* m2 = m1 + (mid*mid);
 
-    int* aux1 = m + (mid*mid);
+    int* aux1 = m2 + (mid*mid);
     int* aux2 = aux1 + (mid*mid);
     int* remaining_buffer = aux2 + (mid*mid);
+
 
     for (unsigned int i = 0; i < mid; ++i) {
         for (unsigned int j = 0; j < mid; ++j) {
@@ -50,72 +51,34 @@ void matrix_multiply_strassen_internal(int* a, int* b, int* c, unsigned int n, i
 
     matrix_add(a11, a22, aux1, mid);
     matrix_add(b11, b22, aux2, mid);
-    matrix_multiply_strassen_internal(aux1, aux2, m, mid, remaining_buffer);
+    matrix_multiply_strassen_internal(aux1, aux2, m1, mid, remaining_buffer);
     
-    for (unsigned int i = 0; i < mid; ++i) {
-        for (unsigned int j = 0; j < mid; ++j) {
-            c[i         * n + j       ] += m[i * mid + j];
-            c[(i + mid) * n + j + mid ] += m[i * mid + j];
-        }
-    }
-
-    matrix_add(a21, a22, aux1, mid);
-    matrix_multiply_strassen_internal(aux1, b11, m, mid, remaining_buffer);
-
-    for (unsigned int i = 0; i < mid; ++i) {
-        for (unsigned int j = 0; j < mid; ++j) {
-            c[(i + mid) * n + j       ] += m[i * mid + j];
-            c[(i + mid) * n + j + mid ] -= m[i * mid + j];
-        }
-    }
-
-    matrix_subtract(b12, b22, aux2, mid);
-    matrix_multiply_strassen_internal(a11, aux2, m, mid, remaining_buffer);
-
-    for (unsigned int i = 0; i < mid; ++i) {
-        for (unsigned int j = 0; j < mid; ++j) {
-            c[i         * n + j + mid ] += m[i * mid + j];
-            c[(i + mid) * n + j + mid ] += m[i * mid + j];
-        }
-    }
+    matrix_subtract(a12, a22, aux1, mid);
+    matrix_add(b21, b22, aux2, mid);
+    matrix_multiply_strassen_internal(aux1, aux2, m2, mid, remaining_buffer);
 
     matrix_subtract(b21, b11, aux1, mid);
-    matrix_multiply_strassen_internal(a22, aux1, m, mid, remaining_buffer);
+    matrix_multiply_strassen_internal(a22, aux1, b21, mid, remaining_buffer);
 
-    for (unsigned int i = 0; i < mid; ++i) {
-        for (unsigned int j = 0; j < mid; ++j) {
-            c[i         * n + j] += m[i * mid + j];
-            c[(i + mid) * n + j] += m[i * mid + j];
-        }
-    }
+    matrix_add(a21, a22, aux1, mid);
+    matrix_multiply_strassen_internal(aux1, b11, a22, mid, remaining_buffer);
 
     matrix_add(a11, a12, aux2, mid);
-    matrix_multiply_strassen_internal(aux2, b22, m, mid, remaining_buffer);
+    matrix_multiply_strassen_internal(aux2, b22, a12, mid, remaining_buffer);
 
-    for (unsigned int i = 0; i < mid; ++i) {
-        for (unsigned int j = 0; j < mid; ++j) {
-            c[i * n + j       ] -= m[i * mid + j];
-            c[i * n + j + mid ] += m[i * mid + j];
-        }
-    }
+    matrix_subtract(b12, b22, aux2, mid);
+    matrix_multiply_strassen_internal(a11, aux2, b22, mid, remaining_buffer);
 
     matrix_subtract(a21, a11, aux1, mid);
     matrix_add(b11, b12, aux2, mid);
-    matrix_multiply_strassen_internal(aux1, aux2, m, mid, remaining_buffer);
+    matrix_multiply_strassen_internal(aux1, aux2, a21, mid, remaining_buffer);
 
     for (unsigned int i = 0; i < mid; ++i) {
         for (unsigned int j = 0; j < mid; ++j) {
-            c[(i + mid) * n + j + mid ] += m[i * mid + j];
-        }
-    }
-
-    matrix_subtract(a12, a22, aux1, mid);
-    matrix_add(b21, b22, aux2, mid);
-    matrix_multiply_strassen_internal(aux1, aux2, m, mid, remaining_buffer);
-
-    for (unsigned int i = 0; i < mid; ++i) {
-        for (unsigned int j = 0; j < mid; ++j) {
-            c[i * n + j] += m[i * mid + j];
+            c[i * n + j]                = m1[i * mid + j] + m2[i * mid + j] + b21[i * mid + j] - a12[i * mid + j];
+            c[(i + mid) * n + j + mid]  = m1[i * mid + j] - a22[i * mid + j] + b22[i * mid + j] + a21[i * mid + j];
+            c[(i + mid) * n + j]        = a22[i * mid + j] + b21[i * mid + j];
+            c[i * n + j + mid]          = a12[i * mid + j] + b22[i * mid + j];
         }
     }
 }
