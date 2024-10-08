@@ -3,13 +3,13 @@
 #include "sort.h"
 #include "utils.h"
 
-void count_sort(int* arr, unsigned int size) {
+void count_sort(int* arr, size_t size) {
   int k = array_max_value(arr, size) + 1;
   int* counter = (int*)malloc(k * sizeof(int));
   for (int i = 0; i < k; ++i) {
     counter[i] = 0;
   }
-  for (unsigned int i = 0; i < size; ++i) {
+  for (size_t i = 0; i < size; ++i) {
     counter[arr[i]]++;
   }
   int i = 0;
@@ -25,8 +25,8 @@ void count_sort(int* arr, unsigned int size) {
   free(counter);
 }
 
-unsigned long long count_sort_book_ram(int* arr, unsigned int size) {
+unsigned long long count_sort_book_ram(int* arr, size_t size) {
   return 0;
 }
 
-unsigned long long count_sort_ram(int* arr, unsigned int size) { return 0; }
+unsigned long long count_sort_ram(int* arr, size_t size) { return 0; }

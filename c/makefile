@@ -1,7 +1,7 @@
 CC = clang
 CFLAGS = -Wall -O3
 
-all: mkdir ./bin/sort ./bin/sort_ram ./bin/matrix
+all: mkdir ./bin/sort ./bin/sort_ram ./bin/matrix ./bin/order_statistics
 
 debug: CFLAGS = -Wall -O0 -g
 debug: all
@@ -56,6 +56,17 @@ mkdir:
 	$(CC) $(CFLAGS) -I./include -c $^ -o $@
 
 ./bin/strassen.o: src/matrix/strassen.c
+	$(CC) $(CFLAGS) -I./include -c $^ -o $@
+
+# Order statistics
+
+./bin/order_statistics: ./bin/order_statistics.o ./bin/minimum_maximum.o ./bin/utils.o
+	$(CC) $(CFLAGS) -o $@ $^
+
+./bin/order_statistics.o: src/runners/order_statistics.c 
+	$(CC) $(CFLAGS) -I./include -c $^ -o $@
+
+./bin/minimum_maximum.o: src/order_statistics/minimum_maximum.c
 	$(CC) $(CFLAGS) -I./include -c $^ -o $@
 
 clean:

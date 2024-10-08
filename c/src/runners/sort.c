@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
   int seed = atoi(argv[2]);
   int algoritmo = atoi(argv[3]);
 
-  if (n <= 1 || seed < 0) {
+  if (n <= 1 || seed < 0 || algoritmo < 0 || algoritmo > 5) {
     printf("Uso: %s <n> <seed> <algoritmo> (n > 1 e seed >=0)\n", argv[0]);
     printf(
         "algoritmo:\n0 - insertion sort\n1 - merge sort\n2 - quick sort\n3 - "
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  void (*sorts[6])(int*, unsigned int) = {insertion_sort, merge_sort,
+  void (*sorts[6])(int*, size_t) = {insertion_sort, merge_sort,
                                           quick_sort,     randomized_quick_sort,
                                           count_sort,     radix_sort};
   char* sort_names[6] = {"insertion_sort",        "merge_sort", "quick_sort",

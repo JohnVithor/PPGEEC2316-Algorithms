@@ -2,7 +2,7 @@
 #define _BINARY_HEAP_H_
 
 typedef struct Data {
-  unsigned int key;
+  size_t key;
   char name[100];
 } Data;
 
@@ -16,17 +16,17 @@ typedef struct BinaryHeapResult {
 
 typedef struct BinaryHeap {
   Data* data;
-  unsigned int size;
-  unsigned int capacity;
+  size_t size;
+  size_t capacity;
 } BinaryHeap;
 
-unsigned int parent(unsigned int i);
-unsigned int left(unsigned int i);
-unsigned int right(unsigned int i);
+size_t parent(size_t i);
+size_t left(size_t i);
+size_t right(size_t i);
 
-void max_heapify(BinaryHeap* heap, unsigned int i);
-BinaryHeap build_max_heap(Data* arr, unsigned int n);
-void heap_sort(Data* arr, unsigned int n);
+void max_heapify(BinaryHeap* heap, size_t i);
+BinaryHeap build_max_heap(Data* arr, size_t n);
+void heap_sort(Data* arr, size_t n);
 
 BinaryHeapResult get_max(BinaryHeap* heap);
 BinaryHeapResult extract_max(BinaryHeap* heap);

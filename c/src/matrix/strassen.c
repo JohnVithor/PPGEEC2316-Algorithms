@@ -2,20 +2,20 @@
 
 #include "matrix.h"
 
-void matrix_multiply_strassen(int* a, int* b, int* c, unsigned int n) {
+void matrix_multiply_strassen(int* a, int* b, int* c, size_t n) {
   int* buffer = malloc(4 * n * n * sizeof(int));
   matrix_multiply_strassen_internal(a, b, c, n, buffer);
   free(buffer);
 }
 
-void matrix_multiply_strassen_internal(int* a, int* b, int* c, unsigned int n,
+void matrix_multiply_strassen_internal(int* a, int* b, int* c, size_t n,
                                        int* buffer) {
   if (n == 1) {
     c[0] = a[0] * b[0];
     return;
   }
 
-  unsigned int mid = n / 2;
+  size_t mid = n / 2;
 
   int* a11 = buffer;
   int* a12 = a11 + (mid * mid);
@@ -33,8 +33,8 @@ void matrix_multiply_strassen_internal(int* a, int* b, int* c, unsigned int n,
   int* aux2 = aux1 + (mid * mid);
   int* remaining_buffer = aux2 + (mid * mid);
 
-  for (unsigned int i = 0; i < mid; ++i) {
-    for (unsigned int j = 0; j < mid; ++j) {
+  for (size_t i = 0; i < mid; ++i) {
+    for (size_t j = 0; j < mid; ++j) {
       a11[i * mid + j] = a[i * n + j];
       a12[i * mid + j] = a[i * n + j + mid];
       a21[i * mid + j] = a[(i + mid) * n + j];
@@ -70,8 +70,8 @@ void matrix_multiply_strassen_internal(int* a, int* b, int* c, unsigned int n,
   matrix_add(b11, b12, aux2, mid);
   matrix_multiply_strassen_internal(aux1, aux2, a21, mid, remaining_buffer);
 
-  for (unsigned int i = 0; i < mid; ++i) {
-    for (unsigned int j = 0; j < mid; ++j) {
+  for (size_t i = 0; i < mid; ++i) {
+    for (size_t j = 0; j < mid; ++j) {
       c[i * n + j] = m1[i * mid + j] + m2[i * mid + j] + b21[i * mid + j] -
                      a12[i * mid + j];
       c[(i + mid) * n + j + mid] = m1[i * mid + j] - a22[i * mid + j] +

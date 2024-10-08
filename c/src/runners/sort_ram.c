@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  long long unsigned int (*sorts[6])(int*, unsigned int) = {
+  unsigned long long (*sorts[6])(int*, size_t) = {
       insertion_sort_ram,        merge_sort_ram, quick_sort_ram,
       randomized_quick_sort_ram, count_sort_ram, radix_sort_ram};
   char* sort_names[6] = {"insertion_sort_ram", "merge_sort_ram",
@@ -32,10 +32,10 @@ int main(int argc, char* argv[]) {
                          "count_sort_ram",     "radix_sort_ram"};
 
   int* arr = create_random_array(n, seed);
-  long long unsigned int ops_random = (sorts[algoritmo])(arr, n);
-  long long unsigned int ops_best = (sorts[algoritmo])(arr, n);
+  unsigned long long ops_random = (sorts[algoritmo])(arr, n);
+  unsigned long long ops_best = (sorts[algoritmo])(arr, n);
   revert_array(arr, n);
-  long long unsigned int ops_worse = (sorts[algoritmo])(arr, n);
+  unsigned long long ops_worse = (sorts[algoritmo])(arr, n);
   printf("%s,%llu,%llu,%llu\n", sort_names[algoritmo], ops_random, ops_best,
          ops_worse);
   return 0;

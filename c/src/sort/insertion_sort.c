@@ -1,9 +1,9 @@
 #include "sort.h"
 
-void insertion_sort(int* arr, unsigned int n) {
-  for (unsigned int i = 1; i < n; ++i) {
+void insertion_sort(int* arr, size_t n) {
+  for (size_t i = 1; i < n; ++i) {
     int key = arr[i];
-    unsigned int j = i;
+    size_t j = i;
     while (j > 0 && arr[j - 1] > key) {
       arr[j] = arr[j - 1];
       --j;
@@ -12,13 +12,13 @@ void insertion_sort(int* arr, unsigned int n) {
   }
 }
 
-unsigned long long insertion_sort_ram(int* arr, unsigned int n) {
+unsigned long long insertion_sort_ram(int* arr, size_t n) {
   unsigned long long op = 1;  // inicialização da variável i
-  for (unsigned int i = 1; i < n; ++i) {
+  for (size_t i = 1; i < n; ++i) {
     op += 3;  // comparação com n, acesso a arr[i] e atribuição a key
     int key = arr[i];
     op += 1;  // atribuição a j
-    unsigned int j = i;
+    size_t j = i;
     while (j > 0 && arr[j - 1] > key) {  // comparação j > 0, subtração j-1,
                                          // acesso arr[j-1], comparação
       op += 5;  // arr[j-1] > key e conjunção dos resultados

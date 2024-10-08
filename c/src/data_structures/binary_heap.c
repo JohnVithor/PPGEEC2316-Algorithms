@@ -4,16 +4,16 @@
 
 #include "utils.h"
 
-unsigned int parent(unsigned int i) { return i / 2; }
+size_t parent(size_t i) { return i / 2; }
 
-unsigned int left(unsigned int i) { return 2 * i; }
+size_t left(size_t i) { return 2 * i; }
 
-unsigned int right(unsigned int i) { return 2 * i + 1; }
+size_t right(size_t i) { return 2 * i + 1; }
 
-void max_heapify(BinaryHeap* heap, unsigned int i) {
-  unsigned int l = left(i);
-  unsigned int r = right(i);
-  unsigned int largest;
+void max_heapify(BinaryHeap* heap, size_t i) {
+  size_t l = left(i);
+  size_t r = right(i);
+  size_t largest;
   if (l < heap->size && heap->data[l].key > heap->data[i].key)
     largest = l;
   else
@@ -29,21 +29,21 @@ void max_heapify(BinaryHeap* heap, unsigned int i) {
   }
 }
 
-BinaryHeap build_max_heap(Data* data, unsigned int n) {
+BinaryHeap build_max_heap(Data* data, size_t n) {
   BinaryHeap heap;
   heap.data = data;
   heap.size = n;
   heap.capacity = n;
-  for (unsigned int i = n / 2; i > 0; --i) {
+  for (size_t i = n / 2; i > 0; --i) {
     max_heapify(&heap, i - 1);
   }
   return heap;
 }
 
-void heap_sort(Data* arr, unsigned int n) {
+void heap_sort(Data* arr, size_t n) {
   BinaryHeap heap = build_max_heap(arr, n);
   heap.size = n;
-  for (unsigned int i = n - 1; i > 0; --i) {
+  for (size_t i = n - 1; i > 0; --i) {
     Data swap = arr[0];
     arr[0] = arr[i];
     arr[i] = swap;
@@ -83,7 +83,7 @@ BinaryHeapResult insert(BinaryHeap* heap, Data data) {
     return r;
   }
   heap->data[heap->size] = data;
-  unsigned int i = heap->size;
+  size_t i = heap->size;
   heap->size += 1;
   while (i > 0 && heap->data[parent(i)].key < heap->data[i].key) {
     Data swap = heap->data[i];
@@ -108,7 +108,7 @@ void print_heap(BinaryHeap* heap) {
     return;
   }
   int height = 0;
-  unsigned int size = heap->size;
+  size_t size = heap->size;
   while (size > 0) {
     size >>= 1;
     height++;
