@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 
   int* arr = create_random_array(n, seed);
 
-  Data* data = (Data*)malloc(n * sizeof(Data));
+  Data* data = (Data*)safe_malloc(n * sizeof(Data));
   for (int i = 0; i < n; i++) {
     data[i].key = arr[i];
     sprintf(data[i].name, "name_%d", i);

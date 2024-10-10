@@ -6,7 +6,7 @@
 
 int* create_random_array(size_t n, int seed) {
   srand(seed);
-  int* arr = (int*)malloc(n * sizeof(int));
+  int* arr = (int*)safe_malloc(n * sizeof(int));
   for (size_t i = 0; i < n; ++i) {
     arr[i] = rand();
   }

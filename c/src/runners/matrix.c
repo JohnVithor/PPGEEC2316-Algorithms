@@ -21,10 +21,10 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  int* a = (int*)malloc(n * n * sizeof(int));
-  int* b = (int*)malloc(n * n * sizeof(int));
-  int* c = (int*)malloc(n * n * sizeof(int));
-  int* d = (int*)malloc(n * n * sizeof(int));
+  int* a = (int*)safe_malloc(n * n * sizeof(int));
+  int* b = (int*)safe_malloc(n * n * sizeof(int));
+  int* c = (int*)safe_malloc(n * n * sizeof(int));
+  int* d = (int*)safe_malloc(n * n * sizeof(int));
   srand(seed);
   for (int i = 0; i < n * n; i++) {
     a[i] = rand();
