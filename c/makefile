@@ -71,7 +71,7 @@ mkdir:
 
 # Allocation
 
-./bin/allocation: ./bin/allocation.o ./bin/allocation_f.o ./bin/utils.o
+./bin/allocation: ./bin/allocation.o ./bin/allocation_f.o ./bin/utils.o ./bin/quick_sort.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 ./bin/allocation.o: src/runners/allocation.c 

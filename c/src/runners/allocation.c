@@ -3,6 +3,7 @@
 #include <time.h>
 #include "utils.h"
 #include "misc.h"
+#include "sort.h"
 
 
 int main(int argc, char** argv) {
@@ -23,33 +24,28 @@ int main(int argc, char** argv) {
     int* tasks   = (int*) safe_malloc(n * sizeof(int)); 
     int* workers = (int*) safe_malloc(k * sizeof(int)); 
     
-    for (unsigned int i = 0; i < n; ++i){
-        tasks[i] = i+1;
-    }
-
-    unsigned long long ascending = allocation(tasks, n, workers, k);
-
-    for (unsigned int i = 0; i < n; ++i){
-        if (i % 2 == 0)
-            tasks[i] = i+1;    
-        else
-            tasks[i] = n-i+1;    
-    }
-
-    unsigned long long alternating = allocation(tasks, n, workers, k);
-
     srand(seed);
-
     for (unsigned int i = 0; i < n; ++i){
-        unsigned int j = i + rand() % (n-i);
-        int swap = tasks[i];
-        tasks[i] = tasks[j];
-        tasks[j] = swap;
+        tasks[i] = rand() % 1000;
     }
 
     unsigned long long random = allocation(tasks, n, workers, k);
 
-    printf("%llu,%llu,%llu\n", ascending, alternating, random);
+    quick_sort(tasks, n);
+
+    unsigned long long sorted = allocation(tasks, n, workers, k);
+
+    for (unsigned int i = 0; i < n/2; ++i){
+        if (i % 2 == 0){
+            int aux = tasks[i];
+            tasks[i] = tasks[n-i-1];
+            tasks[n-i-1] = aux;
+        }
+    }
+
+    unsigned long long alternated = allocation(tasks, n, workers, k);
+
+    printf("%llu,%llu,%llu\n", random, sorted, alternated);
 
     free(tasks);
     free(workers);
