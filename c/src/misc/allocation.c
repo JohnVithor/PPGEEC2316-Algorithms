@@ -1,7 +1,7 @@
 #include "misc.h"
 
-unsigned long long allocation(int* tasks, size_t n, int* workers, size_t k) {
-  unsigned long long max_alloc = 0;
+float allocation(int* tasks, size_t n, float* workers, size_t k) {
+  float max_alloc = 0;
     size_t j = 0;
     for (size_t i = 0; i < k; ++i) {
         workers[i] = 0;

@@ -22,18 +22,18 @@ int main(int argc, char** argv) {
     }
 
     int* tasks   = (int*) safe_malloc(n * sizeof(int)); 
-    int* workers = (int*) safe_malloc(k * sizeof(int)); 
+    float* workers = (float*) safe_malloc(k * sizeof(float)); 
     
     srand(seed);
     for (unsigned int i = 0; i < n; ++i){
         tasks[i] = rand() % 1000;
     }
 
-    unsigned long long random = allocation(tasks, n, workers, k);
+    float random = allocation(tasks, n, workers, k);
 
     quick_sort(tasks, n);
 
-    unsigned long long sorted = allocation(tasks, n, workers, k);
+    float sorted = allocation(tasks, n, workers, k);
 
     for (unsigned int i = 0; i < n/2; ++i){
         if (i % 2 == 0){
@@ -43,9 +43,9 @@ int main(int argc, char** argv) {
         }
     }
 
-    unsigned long long alternated = allocation(tasks, n, workers, k);
+    float alternated = allocation(tasks, n, workers, k);
 
-    printf("%llu,%llu,%llu\n", random, sorted, alternated);
+    printf("%f,%f,%f\n", random, sorted, alternated);
 
     free(tasks);
     free(workers);
