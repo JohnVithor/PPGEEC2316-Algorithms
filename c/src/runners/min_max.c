@@ -5,9 +5,10 @@
 #include "utils.h"
 #include "order_statistics.h"
 
+
 int main(int argc, char* argv[]) {
-  if (argc != 3) {
-    printf("Uso: %s <n> <seed> (n > 1 e seed >=0])\n", argv[0]);
+  if (argc != 2) {
+    printf("Uso: %s <n> (n > 1])\n", argv[0]);
     return 1;
   }
   size_t n = 0;
@@ -15,10 +16,8 @@ int main(int argc, char* argv[]) {
     printf("valor inválido para <n>: %s\n", argv[1]);
     return 1;
   }
-  int seed = atoi(argv[2]);
-
-  if (n <= 1 || seed < 0) {
-    printf("Uso: %s <n> <seed> (n > 1 e seed >=0)\n", argv[0]);
+  if (n <= 1) {
+    printf("Uso: %s <n> (n > 1)\n", argv[0]);
     return 1;
   }
 
@@ -28,11 +27,6 @@ int main(int argc, char* argv[]) {
   // data creation
   clock_gettime(CLOCK_MONOTONIC, &ts_start);
   int* arr = (int*)safe_malloc(n * sizeof(int));
-  if (0 == sscanf(argv[1], "%zu", &n)){
-    printf("valor inválido para <n>: %s\n", argv[1]);
-    return 1;
-  }
-  srand(seed);
   for (size_t i = 0; i < n; ++i) {
     arr[i] = i;
   }

@@ -51,7 +51,7 @@ Pair minimum_maximum(int* arr, size_t size) {
     result.min = arr[0];
     i = 1;
   }
-  for (; i+1 < size; i += 2) {
+  while (i+1 < size) {
     if (arr[i] > arr[i + 1]) {
       if (arr[i] > result.max) {
         result.max = arr[i];
@@ -67,6 +67,7 @@ Pair minimum_maximum(int* arr, size_t size) {
         result.min = arr[i];
       }
     }
+    i+=2;
   }
   return result;
 }

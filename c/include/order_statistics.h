@@ -14,8 +14,8 @@ int maximum(int* arr, size_t size);
 Pair minimum_maximum_naive(int* arr, size_t size);
 Pair minimum_maximum(int* arr, size_t size);
 
-size_t randomized_select_kth(int* arr, size_t start, size_t end,size_t i);
-size_t select_kth(int* arr, size_t start, size_t end,size_t i);
+size_t randomized_select_kth(int* arr, size_t size, size_t i);
+size_t select_kth(int* arr, size_t size, size_t i);
 
 size_t weighted_median(int* arr, float* weights, size_t size);
 
