@@ -1,7 +1,7 @@
 CC = clang
 CFLAGS = -Wall -O3
 
-all: mkdir ./bin/sort ./bin/sort_ram ./bin/matrix ./bin/min_max ./bin/allocation
+all: mkdir ./bin/sort ./bin/sort_ram ./bin/matrix ./bin/min_max ./bin/allocation ./bin/selection
 
 debug: CFLAGS = -Wall -O0 -g
 debug: all
@@ -78,6 +78,17 @@ mkdir:
 	$(CC) $(CFLAGS) -I./include -c $^ -o $@
 
 ./bin/allocation_f.o: src/misc/allocation.c
+	$(CC) $(CFLAGS) -I./include -c $^ -o $@
+
+# Selection
+
+./bin/selection: ./bin/selection_runner.o ./bin/selection.o ./bin/utils.o ./bin/randomized_quick_sort.o ./bin/insertion_sort.o
+	$(CC) $(CFLAGS) -o $@ $^
+
+./bin/selection_runner.o: src/runners/selection.c 
+	$(CC) $(CFLAGS) -I./include -c $^ -o $@
+
+./bin/selection.o: src/order_statistics/selection.c
 	$(CC) $(CFLAGS) -I./include -c $^ -o $@
 
 clean:
