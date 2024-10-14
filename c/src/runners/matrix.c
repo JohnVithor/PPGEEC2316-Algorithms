@@ -21,14 +21,14 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  int* a = (int*)safe_malloc(n * n * sizeof(int));
-  int* b = (int*)safe_malloc(n * n * sizeof(int));
-  int* c = (int*)safe_malloc(n * n * sizeof(int));
-  int* d = (int*)safe_malloc(n * n * sizeof(int));
-  srand(seed);
-  for (int i = 0; i < n * n; i++) {
-    a[i] = rand();
-    b[i] = rand();
+  T* a = (T*)safe_malloc(n * n * sizeof(T));
+  T* b = (T*)safe_malloc(n * n * sizeof(T));
+  T* c = (T*)safe_malloc(n * n * sizeof(T));
+  T* d = (T*)safe_malloc(n * n * sizeof(T));
+  srand48(seed);
+  for (size_t i = 0; i < n * n; i++) {
+    a[i] = drand48() ;
+    b[i] = drand48() ;
     c[i] = 0;
     d[i] = 0;
   }
@@ -49,9 +49,9 @@ int main(int argc, char* argv[]) {
       (double)(ts_end.tv_sec - ts_start.tv_sec) +
       ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
 
-  for (int i = 0; i < n * n; i++) {
-    if (c[i] != d[i]) {
-      printf("Erro: c[%d] = %d != %d = d[%d]\n", i, c[i], d[i], i);
+  for (size_t i = 0; i < n * n; i++) {
+    if (c[i] - d[i] > 0.001) {
+      printf("Erro: c[%zu] = %f != %f = d[%zu]\n", i, c[i], d[i], i);
       return 1;
     }
   }
