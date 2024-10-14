@@ -10,7 +10,9 @@ for size in 10 20 30 40 50 60 70 80 90 100 200 300 400 500 600 700 800 900 1000 
     for i in {1..10}; do
       # Capture the output of the binary
       output=$("../../c/bin/allocation" $size $((size/k)) $i)
-      echo "$i,$size,1/$k,$output" >> results.csv
+      echo "$i,$size,size/$k,$output" >> results.csv
+      output=$("../../c/bin/allocation" $size $k $i)
+      echo "$i,$size,$k,$output" >> results.csv
     done
   done
 done

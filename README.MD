@@ -29,3 +29,11 @@
 2. Implemente os algoritmos de seleção aleatória e seleção das seções 9.2 2 9.3 do livro do Cormen, 4a Ed., e realize experimentos numéricos para demonstrar em quais casos um tem vantagens com relação ao outro.
 
 3. Implemente o algoritmo da mediana ponderada e use-o para resolver o item e do Problema 9-3 do Cormen, 4a Ed.
+
+# Questões 5
+
+1. Proponha um problema que precisa ser resolvido com um dicionário. Use implementações existentes de diversos tipos de dicionários para resolver o problema proposto e avalie os resultados de desempenho para as operações básicas de inserção, remoção, e busca.
+
+2. Implemente uma tabela hash usando funções hash e usando endereçamento aberto. Realize experimentos para mostrar numericamente as vantagens e desvantagens de cada caso.
+
+3. Compare implementações (existentes ou sua própria) de tabelas hash com hashing duplo e probing linear. Observe e justifique os resultados dos seus experimentos em máquinas modernas.
