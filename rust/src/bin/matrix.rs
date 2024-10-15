@@ -2,11 +2,11 @@ use std::{env::args, time::Instant};
 
 use rand::{Rng, SeedableRng};
 
-type Item = f32;
+type Item = f64;
 const LOWER_BOUND: Item = 0.0;
 const UPPER_BOUND: Item = 1.0;
 
-struct Matrix<'a> {
+pub struct Matrix<'a> {
     pub size: usize,
     pub stride: usize,
     data: &'a [Item],
@@ -19,19 +19,26 @@ struct MutMatrix<'a> {
 }
 
 impl<'a> Matrix<'a> {
-    fn new(size: usize, data: &'a [Item]) -> Matrix<'a> {
-        Matrix {
-            size,
-            stride: size,
-            data,
-        }
+    fn new(size: usize, stride: usize, data: &'a [Item]) -> Matrix<'a> {
+        Matrix { size, stride, data }
     }
 
-    fn submatrix(&self, row: usize, col: usize, size: usize) -> Matrix {
-        Matrix {
-            size,
-            stride: self.stride,
-            data: &self.data[row * self.stride + col..],
+    fn split4(&'a self) -> (Matrix<'a>, Matrix<'a>, Matrix<'a>, Matrix<'a>) {
+        let mid = self.size / 2;
+        let m11 = Matrix::new(mid, self.stride, self.data);
+        let m12 = Matrix::new(mid, self.stride, &self.data[mid..]);
+        let m21 = Matrix::new(mid, self.stride, &self.data[(mid * self.stride)..]);
+        let m22 = Matrix::new(mid, self.stride, &self.data[(mid * self.stride + mid)..]);
+
+        (m11, m12, m21, m22)
+    }
+
+    pub fn print(&self) {
+        for i in 0..self.size {
+            for j in 0..self.size {
+                print!("{:.2} ", self[(i, j)]);
+            }
+            println!();
         }
     }
 }
@@ -50,6 +57,14 @@ impl<'a> MutMatrix<'a> {
             size,
             stride: size,
             data,
+        }
+    }
+
+    pub fn transpose(&mut self) {
+        for i in 0..self.size {
+            for j in 0..i {
+                self.data.swap(i * self.stride + j, j * self.stride + i);
+            }
         }
     }
 
@@ -79,8 +94,20 @@ impl<'a> std::ops::IndexMut<(usize, usize)> for MutMatrix<'a> {
 fn matrix_multiply(matrix_a: &Matrix, matrix_b: &Matrix, matrix_c: &mut MutMatrix) {
     for i in 0..matrix_a.size {
         for j in 0..matrix_a.size {
+            matrix_c[(i, j)] = 0.0;
             for k in 0..matrix_a.size {
                 matrix_c[(i, j)] += matrix_a[(i, k)] * matrix_b[(k, j)];
+            }
+        }
+    }
+}
+
+fn matrix_multiply_transposed(matrix_a: &Matrix, matrix_b: &Matrix, matrix_c: &mut MutMatrix) {
+    for i in 0..matrix_a.size {
+        for j in 0..matrix_a.size {
+            matrix_c[(i, j)] = 0.0;
+            for k in 0..matrix_a.size {
+                matrix_c[(i, j)] += matrix_a[(i, k)] * matrix_b[(j, k)];
             }
         }
     }
@@ -113,14 +140,8 @@ fn strassen(matrix_a: &Matrix, matrix_b: &Matrix, matrix_c: &mut MutMatrix, buff
 
     let mid = n / 2;
 
-    let a11 = matrix_a.submatrix(0, 0, mid);
-    let a12 = matrix_a.submatrix(0, mid, mid);
-    let a21 = matrix_a.submatrix(mid, 0, mid);
-    let a22 = matrix_a.submatrix(mid, mid, mid);
-    let b11 = matrix_b.submatrix(0, 0, mid);
-    let b12 = matrix_b.submatrix(0, mid, mid);
-    let b21 = matrix_b.submatrix(mid, 0, mid);
-    let b22 = matrix_b.submatrix(mid, mid, mid);
+    let (a11, a12, a21, a22) = matrix_a.split4();
+    let (b11, b12, b21, b22) = matrix_b.split4();
 
     let (temp_buffer, buffer) = buffer.split_at_mut(mid * mid);
     let mut aux1 = MutMatrix::new(mid, temp_buffer);
@@ -175,16 +196,16 @@ fn strassen(matrix_a: &Matrix, matrix_b: &Matrix, matrix_c: &mut MutMatrix, buff
     }
 }
 
-fn main() {
+fn main() -> Result<(), ()> {
     let args: Vec<String> = args().collect();
     if args.len() != 3 {
         println!(
             "Uso: {} <n> <seed> (n = 2^x, para algum x >= 1 e seed >=0])",
             args[0],
         );
-        return;
+        return Err(());
     }
-    let size = args[1].parse().unwrap();
+    let size: usize = args[1].parse().unwrap();
     let seed: i64 = args[2].parse().unwrap();
 
     if size < 2 || (size & (size - 1)) != 0 || seed < 0 {
@@ -192,29 +213,52 @@ fn main() {
             "Uso: {} <n> <seed> (n = 2^x, para algum x >= 1 e seed >=0])",
             args[0],
         );
-        return;
+        return Err(());
     }
 
     let a = rand::rngs::StdRng::seed_from_u64(0)
         .sample_iter(rand::distributions::Uniform::new(LOWER_BOUND, UPPER_BOUND))
         .take(size * size)
         .collect::<Vec<Item>>();
-    let b = rand::rngs::StdRng::seed_from_u64(1)
+    let mut b = rand::rngs::StdRng::seed_from_u64(1)
         .sample_iter(rand::distributions::Uniform::new(LOWER_BOUND, UPPER_BOUND))
         .take(size * size)
         .collect::<Vec<Item>>();
+
+    // let a: Vec<Item> = (1..=(size * size)).map(|x| x as Item).collect();
+    // let mut b: Vec<Item> = (1..=(size * size)).map(|x| x as Item).collect();
+
     let mut c = vec![0.0; size * size];
     let mut d = vec![0.0; size * size];
     let mut buffer = vec![0.0; 4 * size * size];
-    let matrix_a = Matrix::new(size, &a);
-    let matrix_b = Matrix::new(size, &b);
+
+    let matrix_a = Matrix::new(size, size, &a);
+    let mut matrix_b = MutMatrix::new(size, &mut b);
     let mut matrix_c = MutMatrix::new(size, &mut c);
     let mut matrix_d = MutMatrix::new(size, &mut d);
-    print!("{},", size);
+
     let now = Instant::now();
-    matrix_multiply(&matrix_a, &matrix_b, &mut matrix_d);
+    strassen(&matrix_a, &matrix_b.as_matrix(), &mut matrix_c, &mut buffer);
     print!("{:.6?},", now.elapsed().as_secs_f64());
+
     let now = Instant::now();
-    strassen(&matrix_a, &matrix_b, &mut matrix_c, &mut buffer);
-    print!("{:.6?}", now.elapsed().as_secs_f64());
+    matrix_multiply(&matrix_a, &matrix_b.as_matrix(), &mut matrix_d);
+    print!("{:.6?},", now.elapsed().as_secs_f64());
+
+    for i in 0..(size * size) {
+        if (matrix_c.data[i] - matrix_d.data[i]).abs() > 0.001 {
+            println!(
+                "Erro: c[{i}] = {} != {} = d[{i}]\n",
+                matrix_c.data[i], matrix_d.data[i],
+            );
+            return Err(());
+        }
+    }
+
+    let now = Instant::now();
+    matrix_b.transpose();
+    matrix_multiply_transposed(&matrix_a, &matrix_b.as_matrix(), &mut matrix_d);
+    matrix_b.transpose();
+    println!("{:.6?}", now.elapsed().as_secs_f64());
+    Ok(())
 }

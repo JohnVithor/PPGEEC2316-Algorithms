@@ -4,20 +4,23 @@
 
 void matrix_multiply_strassen_internal(Matrix* a, Matrix* b, Matrix* c, T* buffer) {
   if (a->size == 1) {
-    matrix_e_add(c, 0, 0, matrix_get(a, 0, 0) * matrix_get(b, 0, 0));
+    matrix_set(c, 0, 0, matrix_get(a, 0, 0) * matrix_get(b, 0, 0));
     return;
   }
 
   size_t mid = a->size / 2;
 
-  Matrix a11 = matrix_submatrix(a, 0, 0, mid);
-  Matrix a12 = matrix_submatrix(a, 0, mid, mid);
-  Matrix a21 = matrix_submatrix(a, mid, 0, mid);
-  Matrix a22 = matrix_submatrix(a, mid, mid, mid);
-  Matrix b11 = matrix_submatrix(b, 0, 0, mid);
-  Matrix b12 = matrix_submatrix(b, 0, mid, mid);
-  Matrix b21 = matrix_submatrix(b, mid, 0, mid);
-  Matrix b22 = matrix_submatrix(b, mid, mid, mid);
+  MatrixSplit a_split = split4(a);
+  Matrix a11 = a_split.m11;
+  Matrix a12 = a_split.m12;
+  Matrix a21 = a_split.m21;
+  Matrix a22 = a_split.m22;
+
+  MatrixSplit b_split = split4(b);
+  Matrix b11 = b_split.m11;
+  Matrix b12 = b_split.m12;
+  Matrix b21 = b_split.m21;
+  Matrix b22 = b_split.m22;
 
   Matrix aux1 = matrix_create(buffer, mid);
   Matrix aux2 = matrix_create(aux1.data + (mid * mid), mid);
@@ -33,26 +36,26 @@ void matrix_multiply_strassen_internal(Matrix* a, Matrix* b, Matrix* c, T* buffe
   matrix_add(&a11, &a22, &aux1);
   matrix_add(&b11, &b22, &aux2);
   matrix_multiply_strassen_internal(&aux1, &aux2, &p1, remaining_buffer);
-
-  matrix_subtract(&a12, &a22, &aux1);
-  matrix_add(&b21, &b22, &aux2);
-  matrix_multiply_strassen_internal(&aux1, &aux2, &p2, remaining_buffer);
-
-  matrix_subtract(&b21, &b11, &aux1);
-  matrix_multiply_strassen_internal(&a22, &aux1, &b21, remaining_buffer);
-
+  
   matrix_add(&a21, &a22, &aux1);
-  matrix_multiply_strassen_internal(&aux1, &b11, &a22, remaining_buffer);
-
-  matrix_add(&a11, &a12, &aux2);
-  matrix_multiply_strassen_internal(&aux2, &b22, &a12, remaining_buffer);
+  matrix_multiply_strassen_internal(&aux1, &b11, &p2, remaining_buffer);
 
   matrix_subtract(&b12, &b22, &aux2);
-  matrix_multiply_strassen_internal(&a11, &aux2, &b22, remaining_buffer);
+  matrix_multiply_strassen_internal(&a11, &aux2, &p3, remaining_buffer);
+
+  matrix_subtract(&b21, &b11, &aux1);
+  matrix_multiply_strassen_internal(&a22, &aux1, &p4, remaining_buffer);
+
+  matrix_add(&a11, &a12, &aux2);
+  matrix_multiply_strassen_internal(&aux2, &b22, &p5, remaining_buffer);
 
   matrix_subtract(&a21, &a11, &aux1);
   matrix_add(&b11, &b12, &aux2);
-  matrix_multiply_strassen_internal(&aux1, &aux2, &a21, remaining_buffer);
+  matrix_multiply_strassen_internal(&aux1, &aux2, &p6, remaining_buffer);
+
+  matrix_subtract(&a12, &a22, &aux1);
+  matrix_add(&b21, &b22, &aux2);
+  matrix_multiply_strassen_internal(&aux1, &aux2, &p7, remaining_buffer);
 
   for (size_t i = 0; i < mid; ++i) {
     for (size_t j = 0; j < mid; ++j) {
