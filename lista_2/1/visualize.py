@@ -1,50 +1,85 @@
 import pandas as pd
 from matplotlib import pyplot as plt
-import numpy as np
+import seaborn as sns
 
-df: pd.DataFrame = pd.read_csv("results.csv")
+df_c: pd.DataFrame = pd.read_csv("results_c.csv")
+df_c["language"] = "C"
+df_r: pd.DataFrame = pd.read_csv("results_r.csv")
+df_r["language"] = "Rust"
+
+df = pd.concat([df_c, df_r])
+df = df.groupby(["size", "language"]).mean().reset_index().drop("i", axis=1)
+df = df.melt(id_vars=["size", "language"], var_name="kind", value_name="value")
 
 fig, axes = plt.subplots(2, 2, figsize=(12, 9))
 
-
-img = df.plot(
+sns.lineplot(
+    data=df,
     x="size",
-    y=["classic", "strassen"],
+    y="value",
+    hue="language",
+    style="kind",
+    sizes=(0.25, 2.5),
     ax=axes[0][0],
-    style=[":s", "--o"],
-    title="Classic vs Strassen (linear scale)",
 )
 
-img = df.plot(
+r = sns.lineplot(
+    data=df,
     x="size",
-    y=["classic", "strassen"],
+    y="value",
+    hue="language",
+    style="kind",
+    sizes=(0.25, 2.5),
     ax=axes[0][1],
-    style=[":s", "--o"],
-    logy=True,
-    logx=True,
-    title="Classic vs Strassen(log scale)",
 )
+r.set(xscale="log")
+r.set(yscale="log")
 
 cutpoint1 = 1024
 cutpoint2 = 2048
 
-img = df[(df["size"] >= cutpoint1) & (df["size"] <= cutpoint2)].plot(
+df_zoom = df[(df["size"] >= cutpoint1) & (df["size"] <= cutpoint2)]
+
+sns.lineplot(
+    data=df_zoom,
     x="size",
-    y=["classic", "strassen"],
-    style=[":s", "--o"],
+    y="value",
+    hue="language",
+    style="kind",
+    sizes=(0.25, 2.5),
     ax=axes[1][0],
-    title=f"Classic vs Strassen(linear scale) size <= {cutpoint1}",
 )
 
-img = df[(df["size"] >= cutpoint1) & (df["size"] <= cutpoint2)].plot(
+r = sns.lineplot(
+    data=df_zoom,
     x="size",
-    y=["classic", "strassen"],
-    style=[":s", "--o"],
+    y="value",
+    hue="language",
+    style="kind",
+    sizes=(0.25, 2.5),
     ax=axes[1][1],
-    logy=True,
-    logx=True,
-    title=f"Classic vs Strassen(log scale) size <= {cutpoint1}",
 )
+r.set(xscale="log")
+r.set(yscale="log")
+plt.show()
 
-plt.tight_layout()
-fig.savefig("results.png")
+# img = df[(df["size"] >= cutpoint1) & (df["size"] <= cutpoint2)].plot(
+#     x="size",
+#     y=["classic", "strassen", "transposed"],
+#     style=[":s", "--o", "-."],
+#     ax=axes[1][0],
+#     title=f"Classic vs Strassen(linear scale) swap point",
+# )
+
+# img = df[(df["size"] >= cutpoint1) & (df["size"] <= cutpoint2)].plot(
+#     x="size",
+#     y=["classic", "strassen", "transposed"],
+#     style=[":s", "--o", "-."],
+#     ax=axes[1][1],
+#     logy=True,
+#     logx=True,
+#     title=f"Classic vs Strassen(log scale) swap point",
+# )
+
+# plt.tight_layout()
+# fig.savefig("results.png")
