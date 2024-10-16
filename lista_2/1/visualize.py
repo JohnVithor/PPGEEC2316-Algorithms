@@ -61,7 +61,6 @@ r = sns.lineplot(
 )
 r.set(xscale="log")
 r.set(yscale="log")
-plt.show()
 
 # img = df[(df["size"] >= cutpoint1) & (df["size"] <= cutpoint2)].plot(
 #     x="size",
@@ -81,5 +80,5 @@ plt.show()
 #     title=f"Classic vs Strassen(log scale) swap point",
 # )
 
-# plt.tight_layout()
-# fig.savefig("results.png")
+plt.tight_layout()
+fig.savefig("results.png")

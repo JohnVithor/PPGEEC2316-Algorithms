@@ -1,4 +1,4 @@
-use algorithms::BinaryHeap;
+use algorithms::binary_heap::BinaryHeap;
 
 fn main() {
     let queue_objects = (1..=10).collect::<Vec<i32>>();
