@@ -87,6 +87,16 @@ impl<T> RawVec<T> {
         self.cap = new_cap;
         Ok(())
     }
+
+    pub fn get(&self, index: usize) -> &T {
+        unsafe { &*self.data.as_ptr().add(index) }
+    }
+
+    pub fn set(&mut self, index: usize, value: T) {
+        unsafe {
+            *self.data.as_ptr().add(index) = value;
+        }
+    }
 }
 
 impl<T> Drop for RawVec<T> {
