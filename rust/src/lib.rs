@@ -1,3 +1,4 @@
+pub mod a_star;
 pub mod binary_heap;
 pub mod hash_table;
 pub mod linked_list;

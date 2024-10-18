@@ -10,7 +10,7 @@ impl<T: Ord + Debug> BinaryHeap<T> {
             data: keys.into_iter().zip(data).collect::<Vec<(f32, T)>>(),
         };
         for i in (0..(heap.data.len() / 2)).rev() {
-            heap.max_heapfy(i);
+            heap.max_heapify(i);
         }
         heap
     }
@@ -27,7 +27,7 @@ impl<T: Ord + Debug> BinaryHeap<T> {
         2 * index + 2
     }
 
-    fn max_heapfy(&mut self, index: usize) {
+    fn max_heapify(&mut self, index: usize) {
         let left = Self::left(index);
         let right = Self::right(index);
         let mut largest = index;
@@ -42,7 +42,7 @@ impl<T: Ord + Debug> BinaryHeap<T> {
 
         if largest != index {
             self.data.swap(index, largest);
-            self.max_heapfy(largest);
+            self.max_heapify(largest);
         }
     }
 
@@ -56,7 +56,7 @@ impl<T: Ord + Debug> BinaryHeap<T> {
         }
 
         let max = self.data.swap_remove(0).1;
-        self.max_heapfy(0);
+        self.max_heapify(0);
         Some(max)
     }
 
