@@ -37,3 +37,11 @@
 2. Implemente uma tabela hash usando funções hash e usando endereçamento aberto. Realize experimentos para mostrar numericamente as vantagens e desvantagens de cada caso.
 
 3. Compare implementações (existentes ou sua própria) de tabelas hash com hashing duplo e probing linear. Observe e justifique os resultados dos seus experimentos em máquinas modernas.
+
+# Questões 6
+
+1. Defina um grafo acíclico direcionado relacionado a área do seu mestrado/doutorado e use a sua implementação para ordenar topologicamente esse grafo.
+
+2. Implemente e aponte vantagens e desvantagens dos algoritmos de Kruskal e Prim para gerar uma árvore de abrangência mínima. Use exemplos práticos da sua área para demonstrar suas conclusões.
+
+3. Implemente o algoritmo do Dijkstra e utilize-o para resolver um problema prático da sua área de interesse.
