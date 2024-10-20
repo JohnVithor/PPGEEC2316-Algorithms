@@ -1,4 +1,4 @@
-use crate::raw_vec::{RawVec, RawVecError};
+use super::raw_vec::{RawVec, RawVecError};
 use core::fmt::Debug;
 
 #[derive(Debug)]

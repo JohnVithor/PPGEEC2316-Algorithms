@@ -1,4 +1,4 @@
-use algorithms::a_star::{a_star, Position, Terrain};
+use algorithms::algorithms::a_star::{a_star, Position, Terrain};
 
 fn main() {
     // Exemplo de grid 2D com diferentes tipos de terreno

@@ -1,21 +1,21 @@
 #include "sort.h"
 
 size_t partition(int* arr, size_t size) {
-  int aux = 0;
-  size_t last_pos = size - 1;
-  int pivot = arr[last_pos];
-  size_t pivot_position = 0;
-  for (size_t i = 0; i < size; ++i) {
-    if (arr[i] < pivot) {
-      aux = arr[pivot_position];
-      arr[pivot_position++] = arr[i];
-      arr[i] = aux;
+  int aux = arr[size - 1];
+  arr[size - 1] = arr[size/2];
+  arr[size/2] = aux;
+  size_t i = 0;
+  for (size_t j = 0; j < size-1; ++j) {
+    if (arr[j] <= arr[size - 1]) {
+      aux = arr[i];
+      arr[i++] = arr[j];
+      arr[j] = aux;
     }
   }
-  aux = arr[pivot_position];
-  arr[pivot_position] = arr[last_pos];
-  arr[last_pos] = aux;
-  return pivot_position;
+  aux = arr[i];
+  arr[i] = arr[size - 1];
+  arr[size - 1] = aux;
+  return i;
 }
 
 void quick_sort(int* arr, size_t size) {

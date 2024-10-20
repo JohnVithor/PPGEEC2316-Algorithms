@@ -1,6 +1,6 @@
 use core::hash::Hash;
 
-use crate::raw_vec::RawVec;
+use crate::data_structures::raw_vec::RawVec;
 
 use super::HashTableError;
 

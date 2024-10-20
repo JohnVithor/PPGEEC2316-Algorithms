@@ -1,6 +1,6 @@
 use std::{env::args, time::Instant};
 
-use algorithms::matrix::{
+use algorithms::data_structures::matrix::{
     matrix_multiply, matrix_multiply_transposed, strassen, Matrix, MutMatrix,
 };
 use rand::{Rng, SeedableRng};

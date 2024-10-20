@@ -1,14 +1,20 @@
-use std::fmt::Debug;
-
-pub struct BinaryHeap<T> {
-    pub data: Vec<(f32, T)>,
+pub struct BinaryHeap<T: Eq, K: Ord> {
+    pub data: Vec<(K, T)>,
 }
 
-impl<T: Ord + Debug> BinaryHeap<T> {
-    pub fn new(data: Vec<T>, keys: Vec<f32>) -> Self {
+impl<T: Eq, K: Ord> BinaryHeap<T, K> {
+    pub fn create(data: Vec<T>, keys: Vec<K>) -> Self {
         let mut heap = BinaryHeap {
-            data: keys.into_iter().zip(data).collect::<Vec<(f32, T)>>(),
+            data: keys.into_iter().zip(data).collect::<Vec<(K, T)>>(),
         };
+        for i in (0..(heap.data.len() / 2)).rev() {
+            heap.max_heapify(i);
+        }
+        heap
+    }
+
+    pub fn new(data: Vec<(K, T)>) -> Self {
+        let mut heap = BinaryHeap { data };
         for i in (0..(heap.data.len() / 2)).rev() {
             heap.max_heapify(i);
         }
@@ -60,7 +66,7 @@ impl<T: Ord + Debug> BinaryHeap<T> {
         Some(max)
     }
 
-    pub fn increase_key(&mut self, value: &T, key: f32) {
+    pub fn increase_key(&mut self, value: &T, key: K) {
         let index = self.data.iter().position(|x| &x.1 == value).unwrap();
         self.data[index].0 = key;
         let mut i = index;
@@ -70,10 +76,10 @@ impl<T: Ord + Debug> BinaryHeap<T> {
         }
     }
 
-    pub fn insert(&mut self, value: T, key: f32) {
+    pub fn insert(&mut self, value: T, key: K) {
         self.data.push((key, value));
         let mut i = self.data.len() - 1;
-        while i > 0 && self.data[Self::parent(i)] < self.data[i] {
+        while i > 0 && self.data[Self::parent(i)].0 < self.data[i].0 {
             self.data.swap(Self::parent(i), i);
             i = Self::parent(i);
         }

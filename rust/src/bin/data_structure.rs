@@ -1,4 +1,4 @@
-use algorithms::{queue::Queue, stack::Stack};
+use algorithms::data_structures::{linked_list::single::LinkedList, queue::Queue, stack::Stack};
 
 fn main() {
     let mut stack = Stack::new(3).unwrap();
@@ -26,4 +26,18 @@ fn main() {
     println!("{:?}", queue);
     queue.enqueue(2).unwrap();
     println!("{:?}", queue);
+
+    let mut list = LinkedList::default();
+    list.push_front(0);
+    list.push_front(5);
+    list.push_front(8);
+    println!("{:?}", list);
+    let popped = list.pop_front();
+    println!("{:?}", popped);
+    println!("{:?}", list);
+    let peeked = list.pop_front();
+    println!("{:?}", peeked);
+    println!("{:?}", list);
+    list.push_front(2);
+    println!("{:?}", list);
 }

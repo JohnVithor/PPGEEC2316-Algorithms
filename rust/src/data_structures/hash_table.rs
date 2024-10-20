@@ -1,4 +1,4 @@
-use crate::raw_vec::RawVecError;
+use super::raw_vec::RawVecError;
 
 pub mod double_hashing;
 pub mod linear_probing;

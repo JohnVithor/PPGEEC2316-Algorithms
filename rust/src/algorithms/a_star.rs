@@ -35,7 +35,6 @@ impl Terrain {
             (Terrain::Mountain, Terrain::Mountain) => 6,
             (Terrain::Water, _) => 10, // Transições de/para água têm custo alto
             (_, Terrain::Water) => 10,
-            _ => 1, // Caso base (se quiser adicionar mais casos)
         }
     }
 }

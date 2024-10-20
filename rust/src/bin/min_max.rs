@@ -1,6 +1,6 @@
 use std::env::args;
 
-use algorithms::minimum_maximum::{minimum_maximum, minimum_maximum_naive};
+use algorithms::algorithms::minimum_maximum::{minimum_maximum, minimum_maximum_naive};
 
 fn main() {
     type T = i32;
