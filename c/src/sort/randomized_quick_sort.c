@@ -3,24 +3,22 @@
 #include "sort.h"
 
 size_t randomized_partition(int* arr, size_t size) {
-  size_t last_pos = size - 1;
   size_t random_pos = rand() % size;
-  int pivot = arr[random_pos];
-  arr[random_pos] = arr[last_pos];
-  arr[last_pos] = pivot;
-  size_t pivot_position = 0;
-  int aux;
-  for (size_t i = 0; i < size; ++i) {
-    if (arr[i] < pivot) {
-      aux = arr[pivot_position];
-      arr[pivot_position++] = arr[i];
-      arr[i] = aux;
+  int aux = arr[random_pos];
+  arr[random_pos] = arr[size - 1];
+  arr[size - 1] = aux;
+  size_t i = 0;
+  for (size_t j = 0; j < size-1; ++j) {
+    if (arr[j] <= arr[size - 1]) {
+      aux = arr[i];
+      arr[i++] = arr[j];
+      arr[j] = aux;
     }
   }
-  aux = arr[pivot_position];
-  arr[pivot_position] = arr[last_pos];
-  arr[last_pos] = aux;
-  return pivot_position;
+  aux = arr[i];
+  arr[i] = arr[size - 1];
+  arr[size - 1] = aux;
+  return i;
 }
 
 void randomized_quick_sort(int* arr, size_t size) {

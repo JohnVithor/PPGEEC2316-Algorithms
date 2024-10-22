@@ -1,121 +1,89 @@
 import pandas as pd
 from matplotlib import pyplot as plt
+import seaborn as sns
 
-df: pd.DataFrame = pd.read_csv("results.csv")
+df_c: pd.DataFrame = pd.read_csv("results_c.csv")
+df_c["language"] = "C"
+df_r: pd.DataFrame = pd.read_csv("results_r.csv")
+df_r["language"] = "Rust"
 
-df_time = df[df["version"] == "quick_sort"].drop("version", axis=1)
-df_ops = df[df["version"] == "randomized_quick_sort"].drop("version", axis=1)
-
-df_time = df_time.groupby(["size"]).mean().reset_index().drop("run", axis=1)
-df_ops = df_ops.groupby(["size"]).mean().reset_index().drop("run", axis=1)
-
-df_time.columns = ["size", "quick_random", "quick_best", "quick_worse"]
-df_ops.columns = [
-    "size",
-    "randomized_quick_random",
-    "randomized_quick_best",
-    "randomized_quick_worse",
-]
-
-df = pd.concat([df_time, df_ops.drop("size", axis=1)], axis=1)
-
-fig, axes = plt.subplots(3, 3, figsize=(20, 9))
-
-img = df.plot(
-    x="size",
-    y=[
-        "quick_worse",
-        "randomized_quick_worse",
-    ],
-    ax=axes[0][0],
-    title="Worse case (linear scale)",
+df = pd.concat([df_c, df_r])
+df.groupby(["size", "language", "version"]).mean().reset_index().drop(
+    "run", axis=1
+).to_csv("results_grouped.csv", index=False, float_format="%.6f")
+df = df.melt(
+    id_vars=["size", "language", "version", "run"], var_name="kind", value_name="value"
 )
 
-img = df.plot(
+
+# fig, axes = plt.subplots(2, 2, figsize=(12, 9))
+
+sns.relplot(
+    data=df,
     x="size",
-    y=[
-        "quick_best",
-        "randomized_quick_best",
-    ],
-    ax=axes[0][1],
-    title="Best case (linear scale)",
+    y="value",
+    col="kind",
+    hue="language",
+    style="version",
+    kind="line",
+    errorbar="ci",
+    marker="o",
+    sizes=(0.25, 2.5),
 )
 
-img = df.plot(
-    x="size",
-    y=[
-        "quick_random",
-        "randomized_quick_random",
-    ],
-    ax=axes[0][2],
-    title="Average case (linear scale)",
-)
+# sns.lineplot(
+#     data=df,
+#     x="size",
+#     y="value",
+#     hue="language",
+#     style="kind",
+#     errorbar="ci",
+#     marker="o",
+#     sizes=(0.25, 2.5),
+#     ax=axes[0][0],
+# )
 
-img = df.plot(
-    x="size",
-    y=[
-        "quick_worse",
-        "randomized_quick_worse",
-    ],
-    ax=axes[1][0],
-    logy=True,
-    logx=True,
-    title="Worse case (log scale)",
-)
+# r = sns.lineplot(
+#     data=df,
+#     x="size",
+#     y="value",
+#     hue="language",
+#     style="kind",
+#     errorbar="ci",
+#     marker="o",
+#     sizes=(0.25, 2.5),
+#     ax=axes[0][1],
+# )
+# r.set(xscale="log")
+# r.set(yscale="log")
 
-img = df.plot(
-    x="size",
-    y=[
-        "quick_best",
-        "randomized_quick_best",
-    ],
-    ax=axes[1][1],
-    logy=True,
-    logx=True,
-    title="Best case (log scale)",
-)
+# df_random = df[(df["kind"] == "random")]
 
-img = df.plot(
-    x="size",
-    y=[
-        "quick_random",
-        "randomized_quick_random",
-    ],
-    ax=axes[1][2],
-    logy=True,
-    logx=True,
-    title="Average case (log scale)",
-)
+# sns.lineplot(
+#     data=df_random,
+#     x="size",
+#     y="value",
+#     hue="language",
+#     style="kind",
+#     errorbar="ci",
+#     marker="o",
+#     sizes=(0.25, 2.5),
+#     ax=axes[1][0],
+# )
 
-img = df[(df["size"] >= 50) & (df["size"] <= 300)].plot(
-    x="size",
-    y=[
-        "quick_worse",
-        "randomized_quick_worse",
-    ],
-    ax=axes[2][0],
-    title="Worse case (zoom on interest area)",
-)
-
-img = df[df["size"] <= 500].plot(
-    x="size",
-    y=[
-        "quick_best",
-        "randomized_quick_best",
-    ],
-    ax=axes[2][1],
-    title="Best case (zoom on interest area)",
-)
-
-img = df[(df["size"] >= 100) & (df["size"] <= 500)].plot(
-    x="size",
-    y=[
-        "quick_random",
-        "randomized_quick_random",
-    ],
-    ax=axes[2][2],
-    title="Average case (zoom on interest area)",
-)
+# r = sns.lineplot(
+#     data=df_random,
+#     x="size",
+#     y="value",
+#     hue="language",
+#     style="kind",
+#     errorbar="ci",
+#     marker="o",
+#     sizes=(0.25, 2.5),
+#     ax=axes[1][1],
+# )
+# r.set(xscale="log")
+# r.set(yscale="log")
 
 plt.tight_layout()
-fig.savefig("results.png")
+plt.savefig("results.png")

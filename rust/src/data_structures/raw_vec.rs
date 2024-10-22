@@ -97,6 +97,15 @@ impl<T> RawVec<T> {
             *self.data.as_ptr().add(index) = value;
         }
     }
+
+    pub fn fill(&mut self, value: T)
+    where
+        T: Copy,
+    {
+        for i in 0..self.cap {
+            self.set(i, value);
+        }
+    }
 }
 
 impl<T> Drop for RawVec<T> {

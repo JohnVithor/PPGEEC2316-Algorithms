@@ -61,16 +61,15 @@ fn main() -> Result<(), ()> {
         8 => "radix sort",
         _ => unreachable!(),
     };
-
     let rng = rand::rngs::StdRng::seed_from_u64(seed as u64);
     let mut arr = rng
-        .sample_iter(Uniform::new(u32::MIN, u32::MAX / 10))
+        .sample_iter(Uniform::new(0, i32::MAX as usize))
         .take(size)
-        .collect::<Vec<u32>>();
+        .collect::<Vec<usize>>();
     // println!("{:?}", arr);
     let now = std::time::Instant::now();
     (fn_alg)(&mut arr);
-    println!("{}, {:.6}", name_alg, now.elapsed().as_secs_f64());
+    print!("{},{:.6},", name_alg, now.elapsed().as_secs_f64());
     // println!("{:?}", arr);
     for i in 0..arr.len() - 1 {
         assert!(
@@ -82,5 +81,13 @@ fn main() -> Result<(), ()> {
             i + 1
         );
     }
+    let now = std::time::Instant::now();
+    (fn_alg)(&mut arr);
+    print!("{:.6},", now.elapsed().as_secs_f64());
+    arr.reverse();
+    let now = std::time::Instant::now();
+    (fn_alg)(&mut arr);
+    println!("{:.6}", now.elapsed().as_secs_f64());
+
     Ok(())
 }

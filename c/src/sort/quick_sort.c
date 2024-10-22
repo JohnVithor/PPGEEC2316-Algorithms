@@ -1,9 +1,7 @@
 #include "sort.h"
 
 size_t partition(int* arr, size_t size) {
-  int aux = arr[size - 1];
-  arr[size - 1] = arr[size/2];
-  arr[size/2] = aux;
+  int aux;
   size_t i = 0;
   for (size_t j = 0; j < size-1; ++j) {
     if (arr[j] <= arr[size - 1]) {

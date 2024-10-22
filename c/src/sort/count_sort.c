@@ -5,10 +5,7 @@
 
 void count_sort(int* arr, size_t size) {
   int k = array_max_value(arr, size) + 1;
-  int* counter = (int*)malloc(k * sizeof(int));
-  for (int i = 0; i < k; ++i) {
-    counter[i] = 0;
-  }
+  int* counter = (int*)calloc(k,sizeof(int));
   for (size_t i = 0; i < size; ++i) {
     counter[arr[i]]++;
   }
