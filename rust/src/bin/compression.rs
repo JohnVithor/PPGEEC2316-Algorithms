@@ -1,6 +1,6 @@
 use std::env::args;
 
-use algorithms::algorithms::huffman_explicit_key::{compress, decompress};
+use algorithms::algorithms::compression::huffman_explicit_key::{compress, decompress};
 
 fn main() -> Result<(), ()> {
     let args: Vec<String> = args().collect();

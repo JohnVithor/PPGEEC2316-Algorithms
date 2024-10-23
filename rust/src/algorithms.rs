@@ -1,5 +1,4 @@
-pub mod huffman;
-pub mod huffman_explicit_key;
-pub mod huffman_implicity_key;
+pub mod compression;
 pub mod minimum_maximum;
+pub mod selection;
 pub mod sort;
