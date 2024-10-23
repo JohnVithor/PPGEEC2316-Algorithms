@@ -1,8 +1,7 @@
-use crate::data_structures::binary_heap::binary_heap_implicit_key::BinaryHeap;
-use std::cmp::Ordering;
-use std::collections::HashMap;
+use crate::data_structures::binary_heap::binary_heap_explicit_key::BinaryHeap;
+use std::{collections::HashMap, vec};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 struct Node {
     freq: usize,
     byte: Option<u8>,
@@ -21,97 +20,87 @@ impl Node {
     }
 }
 
-impl Ord for Node {
-    fn cmp(&self, other: &Self) -> Ordering {
-        other.freq.cmp(&self.freq)
-    }
-}
-
-impl PartialOrd for Node {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl PartialEq for Node {
-    fn eq(&self, other: &Self) -> bool {
-        self.freq == other.freq
-    }
-}
-
-impl Eq for Node {}
-
 #[derive(Debug)]
 pub struct CompressedData {
     pub data: Vec<u8>,
     padding_bits: u8,
-    encoding_map: HashMap<u8, Vec<bool>>,
+    encoding_map: [Vec<bool>; 256],
 }
 
-fn build_frequency_map(bytes: &[u8]) -> HashMap<u8, usize> {
-    let mut freq_map = HashMap::new();
+fn build_frequency_map(bytes: &[u8]) -> [usize; 256] {
+    let mut freq_map = [0; 256];
     for &byte in bytes {
-        *freq_map.entry(byte).or_insert(0) += 1;
+        freq_map[byte as usize] += 1;
     }
     freq_map
 }
 
-fn build_huffman_tree(freq_map: HashMap<u8, usize>) -> Option<Node> {
+fn build_huffman_tree(freq_map: [usize; 256]) -> Option<Node> {
     let mut heap = BinaryHeap::new(
         freq_map
             .into_iter()
-            .map(|(v, k)| Node::new(k, Some(v)))
+            .enumerate()
+            .filter(|(_, v)| *v > 0)
+            .map(|(k, v)| (v, Node::new(v, Some(k as u8))))
             .collect(),
     );
 
     while heap.data.len() > 1 {
         let left = heap.extract_max()?;
         let right = heap.extract_max()?;
-
-        let mut parent = Node::new(left.freq + right.freq, None);
+        let freq = left.freq + right.freq;
+        let mut parent = Node::new(freq, None);
         parent.left = Some(Box::new(left));
         parent.right = Some(Box::new(right));
 
-        heap.insert(parent);
+        heap.insert(parent, freq);
     }
 
     heap.extract_max()
 }
 
-fn build_encoding_map(root: &Node, current_code: Vec<bool>, map: &mut HashMap<u8, Vec<bool>>) {
-    if let Some(byte) = root.byte {
-        map.insert(byte, current_code);
-        return;
+fn build_encoding_map(root: &Node) -> [Vec<bool>; 256] {
+    const ARRAY_REPEAT_VALUE: Vec<bool> = Vec::new();
+    let mut map = [ARRAY_REPEAT_VALUE; 256];
+    if root.left.is_none() && root.right.is_none() {
+        map[root.byte.unwrap() as usize] = vec![false];
+        return map;
     }
+    let mut stack = Vec::new();
+    stack.push((root, vec![]));
 
-    if let Some(left) = &root.left {
-        let mut left_code = current_code.clone();
-        left_code.push(false);
-        build_encoding_map(left, left_code, map);
+    while let Some((node, current_code)) = stack.pop() {
+        if let Some(byte) = node.byte {
+            map[byte as usize] = current_code;
+        } else {
+            if let Some(right) = &node.right {
+                let mut right_code = current_code.clone();
+                right_code.push(true);
+                stack.push((right, right_code));
+            }
+            if let Some(left) = &node.left {
+                let mut left_code = current_code;
+                left_code.push(false);
+                stack.push((left, left_code));
+            }
+        }
     }
-
-    if let Some(right) = &root.right {
-        let mut right_code = current_code;
-        right_code.push(true);
-        build_encoding_map(right, right_code, map);
-    }
+    map
 }
 
 pub fn compress(bytes: &[u8]) -> CompressedData {
     let freq_map = build_frequency_map(bytes);
     let tree = build_huffman_tree(freq_map).unwrap();
-
-    let mut encoding_map = HashMap::new();
-    build_encoding_map(&tree, Vec::new(), &mut encoding_map);
+    let encoding_map = build_encoding_map(&tree);
 
     let mut compressed = Vec::new();
     let mut current_byte = 0u8;
     let mut bit_count = 0;
 
     for &byte in bytes {
-        let code = encoding_map.get(&byte).unwrap();
-        for &bit in code {
-            if bit {
+        let code = &encoding_map[byte as usize];
+        for bit in code {
+            if *bit {
                 current_byte |= 1 << (7 - bit_count);
             }
             bit_count += 1;
@@ -140,8 +129,8 @@ pub fn compress(bytes: &[u8]) -> CompressedData {
 
 pub fn decompress(compressed: &CompressedData) -> Vec<u8> {
     let mut reverse_map = HashMap::new();
-    for (&byte, code) in &compressed.encoding_map {
-        reverse_map.insert(code.clone(), byte);
+    for (byte, code) in compressed.encoding_map.iter().enumerate() {
+        reverse_map.insert(code.clone(), byte as u8);
     }
 
     let mut result = Vec::new();

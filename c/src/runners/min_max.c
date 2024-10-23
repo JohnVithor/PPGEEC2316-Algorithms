@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -24,7 +23,6 @@ int main(int argc, char* argv[]) {
   struct timespec ts_start;
   struct timespec ts_end;
 
-  // data creation
   clock_gettime(CLOCK_MONOTONIC, &ts_start);
   int* arr = (int*)safe_malloc(n * sizeof(int));
   for (size_t i = 0; i < n; ++i) {
@@ -35,7 +33,6 @@ int main(int argc, char* argv[]) {
       (double)(ts_end.tv_sec - ts_start.tv_sec) +
       ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
 
-  // naive minimum and maximum
   clock_gettime(CLOCK_MONOTONIC, &ts_start);
   Pair r1 = minimum_maximum_naive(arr, n);
   clock_gettime(CLOCK_MONOTONIC, &ts_end);
@@ -43,7 +40,6 @@ int main(int argc, char* argv[]) {
       (double)(ts_end.tv_sec - ts_start.tv_sec) +
       ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
 
-  // minimum and maximum
   clock_gettime(CLOCK_MONOTONIC, &ts_start);
   Pair r2 = minimum_maximum(arr, n);
   clock_gettime(CLOCK_MONOTONIC, &ts_end);

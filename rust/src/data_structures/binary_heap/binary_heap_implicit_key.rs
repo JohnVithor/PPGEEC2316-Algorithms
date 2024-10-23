@@ -8,7 +8,7 @@ impl<T: Ord + Debug> BinaryHeap<T> {
     pub fn new(data: Vec<T>) -> Self {
         let mut heap = BinaryHeap { data };
         for i in (0..(heap.data.len() / 2)).rev() {
-            heap.max_heapify(i);
+            heap.heapify(i);
         }
         heap
     }
@@ -25,7 +25,7 @@ impl<T: Ord + Debug> BinaryHeap<T> {
         2 * index + 2
     }
 
-    fn max_heapify(&mut self, index: usize) {
+    fn heapify(&mut self, index: usize) {
         let left = Self::left(index);
         let right = Self::right(index);
         let mut largest = index;
@@ -40,12 +40,16 @@ impl<T: Ord + Debug> BinaryHeap<T> {
 
         if largest != index {
             self.data.swap(index, largest);
-            self.max_heapify(largest);
+            self.heapify(largest);
         }
     }
 
     pub fn get_max(&self) -> Option<&T> {
         self.data.first()
+    }
+
+    pub fn get_max_mut(&mut self) -> Option<&mut T> {
+        self.data.first_mut()
     }
 
     pub fn extract_max(&mut self) -> Option<T> {
@@ -54,7 +58,7 @@ impl<T: Ord + Debug> BinaryHeap<T> {
         }
 
         let max = self.data.swap_remove(0);
-        self.max_heapify(0);
+        self.heapify(0);
         Some(max)
     }
 

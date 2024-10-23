@@ -5,10 +5,10 @@ use rand::{distributions::Uniform, Rng, SeedableRng};
 
 fn main() -> Result<(), ()> {
     let args: Vec<String> = args().collect();
-    if args.len() != 4 {
+    if args.len() != 5 {
         println!(
             r#"
-            Uso: {} <n> <seed> <algoritmo> (n = 2^x, para algum x >= 1 e seed >=0])
+            Uso: {} <n> <seed> <algoritmo> <MAX_VALUE> (n > 1 e seed >=0])
             Algoritmo:
             0 - insertion sort
             1 - merge sort (recursivo)
@@ -27,6 +27,11 @@ fn main() -> Result<(), ()> {
     let size: usize = args[1].parse().unwrap();
     let seed: i64 = args[2].parse().unwrap();
     let alg: i64 = args[3].parse().unwrap();
+    let mut max_value: i64 = args[4].parse().unwrap();
+    if max_value <= 0 {
+        max_value = i32::MAX as i64;
+    }
+    let max_value = max_value as usize;
 
     if size < 2 || seed < 0 || !(0..=8).contains(&alg) {
         println!(
@@ -63,7 +68,7 @@ fn main() -> Result<(), ()> {
     };
     let rng = rand::rngs::StdRng::seed_from_u64(seed as u64);
     let mut arr = rng
-        .sample_iter(Uniform::new(0, i32::MAX as usize))
+        .sample_iter(Uniform::new(0, max_value))
         .take(size)
         .collect::<Vec<usize>>();
     // println!("{:?}", arr);

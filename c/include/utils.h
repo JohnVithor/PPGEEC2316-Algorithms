@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-int* create_random_array(size_t n, int seed);
+int* create_random_array(size_t n, int seed, int max_value);
 void revert_array(int* arr, size_t n);
 char validate_sorting(int* arr, size_t n);
 void print_array(int* arr, size_t n);

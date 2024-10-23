@@ -1,6 +1,6 @@
 use std::env::args;
 
-use algorithms::algorithms::huffman_edited::{compress, decompress};
+use algorithms::algorithms::huffman_explicit_key::{compress, decompress};
 
 fn main() -> Result<(), ()> {
     let args: Vec<String> = args().collect();
@@ -16,23 +16,24 @@ fn main() -> Result<(), ()> {
     }
 
     let original = text.bytes().collect::<Vec<u8>>();
-    println!("Original: {:?}", String::from_utf8_lossy(&original));
+    println!(
+        "Mensagem Original: {:?}",
+        String::from_utf8_lossy(&original)
+    );
     let compressed = compress(&original);
+    println!("Mensagem comprimida: {:?}", compressed.data.as_slice());
     let decompressed = decompress(&compressed);
     println!(
-        "decompressed: {:?}",
+        "Mensagem descomprimida: {:?}",
         String::from_utf8_lossy(decompressed.as_slice())
     );
 
-    println!("Original size: {} bytes", original.len());
-    println!("Compressed size: {} bytes", compressed.data.len());
+    println!("Tamanho Original: {} bytes", original.len());
+    println!("Tamanho Comprimido: {} bytes", compressed.data.len());
     println!(
-        "Compression ratio: {:.2}%",
+        "Taxa de Compressão: {:.2}%",
         (1.0 - (compressed.data.len() as f64 / original.len() as f64)) * 100.0
     );
-    println!(
-        "Successfully decompressed: {}",
-        original == decompressed.as_slice()
-    );
+    println!("Descompressão bem sucedida: {}", original == decompressed);
     Ok(())
 }

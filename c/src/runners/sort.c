@@ -6,8 +6,8 @@
 #include "utils.h"
 
 int main(int argc, char* argv[]) {
-  if (argc != 4) {
-    printf("Uso: %s <n> <seed> <algoritmo> (n > 1 e seed >=0])\n", argv[0]);
+  if (argc != 5) {
+    printf("Uso: %s <n> <seed> <algoritmo> <MAX_VALUE> (n > 1 e seed >=0])\n", argv[0]);
     printf(
         "algoritmo:\n0 - insertion sort\n1 - merge sort\n2 - quick sort\n3 - "
         "randomized quick sort\n4 - count sort\n5 - radix sort\n");
@@ -16,9 +16,12 @@ int main(int argc, char* argv[]) {
   int n = atoi(argv[1]);
   int seed = atoi(argv[2]);
   int algoritmo = atoi(argv[3]);
-
+  int max_value =  atoi(argv[4]);
+  if (max_value <= 0) {
+    max_value = RAND_MAX;
+  }
   if (n <= 1 || seed < 0 || algoritmo < 0 || algoritmo > 5) {
-    printf("Uso: %s <n> <seed> <algoritmo> (n > 1 e seed >=0)\n", argv[0]);
+    printf("Uso: %s <n> <seed> <algoritmo> <MAX_VALUE> (n > 1 e seed >=0)\n", argv[0]);
     printf(
         "algoritmo:\n0 - insertion sort\n1 - merge sort\n2 - quick sort\n3 - "
         "randomized quick sort\n4 - count sort\n5 - radix sort\n");
@@ -31,7 +34,7 @@ int main(int argc, char* argv[]) {
   char* sort_names[6] = {"insertion_sort",        "merge_sort", "quick_sort",
                          "randomized_quick_sort", "count_sort", "radix_sort"};
 
-  int* arr = create_random_array(n, seed);
+  int* arr = create_random_array(n, seed, max_value);
   double time_spent_random = measure_time_sort(arr, n, sorts[algoritmo]);
   if (validate_sorting(arr, n)) {
     printf("Erro ao reverter o array random\n");

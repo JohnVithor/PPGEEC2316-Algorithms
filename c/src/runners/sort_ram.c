@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
                          "quick_sort_ram",     "randomized_quick_sort_ram",
                          "count_sort_ram",     "radix_sort_ram"};
 
-  int* arr = create_random_array(n, seed);
+  int* arr = create_random_array(n, seed, 0);
   unsigned long long ops_random = (sorts[algoritmo])(arr, n);
   unsigned long long ops_best = (sorts[algoritmo])(arr, n);
   revert_array(arr, n);

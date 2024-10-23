@@ -4,11 +4,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-int* create_random_array(size_t n, int seed) {
+int* create_random_array(size_t n, int seed, int max_value) {
   srand(seed);
   int* arr = (int*)safe_malloc(n * sizeof(int));
   for (size_t i = 0; i < n; ++i) {
-    arr[i] = rand();
+    arr[i] = rand() % max_value;
   }
   return arr;
 }

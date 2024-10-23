@@ -2,17 +2,13 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import seaborn as sns
 
-df_c: pd.DataFrame = pd.read_csv("results_c.csv")
+df_c: pd.DataFrame = pd.read_csv("results_c_1.csv")
 df_c["language"] = "C"
-df_r: pd.DataFrame = pd.read_csv("results_r.csv")
+df_r: pd.DataFrame = pd.read_csv("results_r_1.csv")
 df_r["language"] = "Rust"
 
-df_r["version"] = df_r["version"].str.replace(
-    "randomized quick sort (recursivo)", "quick_sort"
-)
-df_r["version"] = df_r["version"].str.replace(
-    "quick sort (recursivo)", "randomized_quick_sort"
-)
+df_r["version"] = df_r["version"].str.replace("count sort", "count_sort")
+df_r["version"] = df_r["version"].str.replace("radix sort", "radix_sort")
 
 df = pd.concat([df_c, df_r])
 df.groupby(["size", "language", "version"]).mean().reset_index().drop(

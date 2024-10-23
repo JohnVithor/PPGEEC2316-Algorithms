@@ -1,25 +1,28 @@
+use algorithms::algorithms::minimum_maximum::{minimum_maximum, minimum_maximum_naive};
 use std::env::args;
 
-use algorithms::algorithms::minimum_maximum::{minimum_maximum, minimum_maximum_naive};
-
 fn main() {
-    type T = i32;
-    let n: T = args()
-        .nth(1)
-        .expect("Please provide the number of elements")
-        .parse()
-        .unwrap();
-    let arr = (0..n).collect::<Vec<T>>();
+    let args: Vec<String> = args().collect();
+    let n: usize = args[1].parse().unwrap();
+    let seed: u64 = args[2].parse().unwrap();
+    fastrand::seed(seed);
     let start = std::time::Instant::now();
-    match minimum_maximum(&arr) {
-        Some((min, max)) => println!("Minimum: {}, Maximum: {}", min, max),
-        None => println!("Array is empty"),
-    }
-    println!("Time taken: {:?}", start.elapsed());
+    let arr: Vec<i32> = (0..n).map(|_| fastrand::i32(i32::MIN..i32::MAX)).collect();
+    let time_to_generate = start.elapsed().as_secs_f64();
     let start = std::time::Instant::now();
-    match minimum_maximum_naive(&arr) {
-        Some((min, max)) => println!("Minimum: {}, Maximum: {}", min, max),
-        None => println!("Array is empty"),
+    let r1 = minimum_maximum_naive(&arr).unwrap();
+    let naive_time = start.elapsed().as_secs_f64();
+    let start = std::time::Instant::now();
+    let r2 = minimum_maximum(&arr).unwrap();
+    let optimized_time = start.elapsed().as_secs_f64();
+    if r1.0 != r2.0 || r1.1 != r2.1 {
+        println!(
+            "Valores diferentes:\nmin: {} e {}\nmax: {} e {}\n ",
+            r1.0, r2.0, r1.1, r2.1,
+        );
     }
-    println!("Time taken: {:?}", start.elapsed());
+    println!(
+        "{:.6},{:.6},{:.6}",
+        time_to_generate, naive_time, optimized_time
+    );
 }
