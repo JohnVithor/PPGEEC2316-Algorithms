@@ -5,6 +5,7 @@ pub mod bucket_sort;
 // pub mod cocktail_shaker_sort;
 // pub mod comb_sort;
 pub mod count_sort;
+pub mod count_sort_extended;
 // pub mod cycle_sort;
 // pub mod gnome_sort;
 // pub mod heapsort;

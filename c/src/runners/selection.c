@@ -44,7 +44,6 @@ if (argc != 4) {
   double time_spent_5_med =
       (double)(ts_end.tv_sec - ts_start.tv_sec) +
       ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
-
   printf("%d,%d,%lf,%lf\n", r1, r2, time_spent_rand, time_spent_5_med);
 
   return 0;

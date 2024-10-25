@@ -18,7 +18,8 @@ fn main() -> Result<(), ()> {
             5 - randomized quick sort (recursivo)
             6 - randomized quick sort (iterativo)
             7 - count sort
-            8 - radix sort
+            8 - count sort extended
+            9 - radix sort
             "#,
             args[0],
         );
@@ -50,7 +51,8 @@ fn main() -> Result<(), ()> {
         5 => sort::randomized_quicksort::quicksort,
         6 => sort::randomized_quicksort_iterative::quicksort,
         7 => sort::count_sort::count_sort,
-        8 => sort::radix_sort::radix_sort,
+        // 7 => sort::count_sort_extended::count_sort,
+        9 => sort::radix_sort::radix_sort,
         _ => unreachable!(),
     };
 
@@ -63,7 +65,8 @@ fn main() -> Result<(), ()> {
         5 => "randomized quick sort (recursivo)",
         6 => "randomized quick sort (iterativo)",
         7 => "count sort",
-        8 => "radix sort",
+        8 => "count sort extended",
+        9 => "radix sort",
         _ => unreachable!(),
     };
     let rng = rand::rngs::StdRng::seed_from_u64(seed as u64);

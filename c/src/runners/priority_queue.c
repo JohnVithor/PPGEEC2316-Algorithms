@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  int* arr = create_random_array(n, seed);
+  int* arr = create_random_array(n, seed, RAND_MAX);
 
   Data* data = (Data*)safe_malloc(n * sizeof(Data));
   for (int i = 0; i < n; i++) {

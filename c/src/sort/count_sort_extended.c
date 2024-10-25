@@ -3,28 +3,7 @@
 #include "sort.h"
 #include "utils.h"
 
-void count_sort_book(int* arr, size_t size) {
-  int k = array_max_value(arr, size) + 1;
-  int* b = (int*) malloc(size*sizeof(int));
-  int* c = (int*) calloc(k,sizeof(int));
-  for (unsigned int i = 0; i < size; ++i) {
-    c[arr[i]]++;
-  }
-  for (int i = 1; i < k; ++i) {
-    c[i] += c[i-1];
-  }
-  for (int i = size-1; i >= 0; --i) {
-    b[c[arr[i]]-1] = arr[i];
-    c[arr[i]]--;
-  }
-  for (unsigned int i = 0; i < size; ++i) {
-    arr[i] = b[i];
-  }
-  free(b);
-  free(c);
-}
-
-void count_sort(int* arr, size_t size) {
+void count_sort_extended(int* arr, size_t size) {
   int k = array_max_value(arr, size) + 1;
   int* counter = (int*)calloc(k,sizeof(int));
   for (size_t i = 0; i < size; ++i) {
