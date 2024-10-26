@@ -82,7 +82,7 @@ mkdir:
 
 # Selection
 
-./bin/selection: ./bin/selection_runner.o ./bin/selection.o ./bin/utils.o ./bin/randomized_quick_sort.o ./bin/insertion_sort.o
+./bin/selection: ./bin/selection_runner.o ./bin/selection.o ./bin/randomized_selection.o ./bin/utils.o ./bin/randomized_quick_sort.o ./bin/insertion_sort.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 ./bin/selection_runner.o: src/runners/selection.c 
@@ -90,6 +90,10 @@ mkdir:
 
 ./bin/selection.o: src/order_statistics/selection.c
 	$(CC) $(CFLAGS) -I./include -c $^ -o $@
+
+./bin/randomized_selection.o: src/order_statistics/randomized_selection.c
+	$(CC) $(CFLAGS) -I./include -c $^ -o $@
+
 
 clean:
 	rm -f ./bin/*

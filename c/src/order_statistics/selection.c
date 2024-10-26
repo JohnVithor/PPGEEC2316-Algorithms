@@ -1,28 +1,12 @@
 #include "order_statistics.h"
 #include "sort.h"
-#include <stdio.h>
-
-int randomized_select_kth(int* arr, size_t size, size_t i) {
-  if (size == 1) {
-    return arr[0];
-  }
-  size_t q = randomized_partition(arr, size);
-  size_t k = q + 1;
-  if (i == k) {
-    return arr[q];
-  } else if (i < k) {
-    return randomized_select_kth(arr, q, i);
-  } else {
-    return randomized_select_kth(arr + q + 1, size - q - 1, i - k);
-  }
-}
 
 size_t partition_around(int* arr, size_t size, size_t x) {
   int aux = arr[x];
   arr[x] = arr[size - 1];
   arr[size - 1] = aux;
   size_t i = 0;
-  for (size_t j = 0; j < size-1; ++j) {
+  for (size_t j = 0; j < size - 1; ++j) {
     if (arr[j] <= arr[size - 1]) {
       aux = arr[i];
       arr[i++] = arr[j];
@@ -36,56 +20,110 @@ size_t partition_around(int* arr, size_t size, size_t x) {
 }
 
 void ref_sort_5(int* a, int* b, int* c, int* d, int* e) {
-  int aux;
-  if (*a > *b) {
-    aux = *a;
-    *a = *b;
-    *b = aux;
-  }
-  if (*c > *d) {
-    aux = *c;
-    *c = *d;
-    *d = aux;
-  }
-  if (*a > *c) {
-    aux = *a;
-    *a = *c;
-    *c = aux;
-  }
-  if (*b > *d) {
-    aux = *b;
-    *b = *d;
-    *d = aux;
-  }
-  if (*b > *c) {
-    aux = *b;
-    *b = *c;
-    *c = aux;
-  }
+    int temp;
+    
+    // Compare and swap a-b
+    if (*a > *b) {
+        temp = *a;
+        *a = *b;
+        *b = temp;
+    }
+    // Compare and swap c-d
+    if (*c > *d) {
+        temp = *c;
+        *c = *d;
+        *d = temp;
+    }
+    // Compare and swap c-e
+    if (*c > *e) {
+        temp = *c;
+        *c = *e;
+        *e = temp;
+    }
+    // Compare and swap d-e
+    if (*d > *e) {
+        temp = *d;
+        *d = *e;
+        *e = temp;
+    }
+    // Compare and swap a-c
+    if (*a > *c) {
+        temp = *a;
+        *a = *c;
+        *c = temp;
+    }
+    // Compare and swap b-d
+    if (*b > *d) {
+        temp = *b;
+        *b = *d;
+        *d = temp;
+    }
+    // Compare and swap b-c
+    if (*b > *c) {
+        temp = *b;
+        *b = *c;
+        *c = temp;
+    }
+    // Compare and swap d-e
+    if (*d > *e) {
+        temp = *d;
+        *d = *e;
+        *e = temp;
+    }
+    // Final compare and swap c-d
+    if (*c > *d) {
+        temp = *c;
+        *c = *d;
+        *d = temp;
+    }
 }
 
 int select_kth(int* arr, size_t size, size_t i) {
-  if (size < 5) {
-    insertion_sort(arr, size);
-    return arr[i-1];
+  while (size % 5 != 0) {
+    for (size_t j = 1; j < size; ++j) {
+      if (arr[0] > arr[j]) {
+        int aux = arr[j];
+        arr[j] = arr[0];
+        arr[0] = aux;
+      }
+    }
+    if (i == 1) {
+      return arr[0];
+    }
+    arr++;
+    size--;
+    i--;
   }
-  size_t g = (size / 5);
 
+  size_t g = size / 5;
 
-  for(size_t j = 0; j < g; ++j) {
-    ref_sort_5(arr + j, arr + j+g, arr + j+2*g, arr + j+3*g, arr + j+4*g);
+  // Ordena os grupos de 5
+  for (size_t j = 0; j < g; ++j) {
+    ref_sort_5(arr + j, arr + j + g, arr + j + 2 * g, arr + j + 3 * g,
+               arr + j + 4 * g);
   }
 
-  size_t x = select_kth(arr+2*g, g, g%2 == 0 ? g/2 : g/2+1);
-  size_t q = partition_around(arr, size, x);
-  size_t k = q + 1;
+  // Calcula a mediana das medianas
+  size_t ceil_v = g % 2 == 0 ? g / 2 : g / 2 + 1;
+  // Corrigido: usa o tamanho correto do subarray de medianas
+  int x = select_kth(arr + 2 * g, g, ceil_v);
 
-  if (i == k) {
+  // Encontra a posição do elemento x no array atual
+  size_t x_pos = 0;
+  for (size_t j = 0; j < size; j++) {
+    if (arr[j] == x) {
+      x_pos = j;
+      break;
+    }
+  }
+
+  size_t q = partition_around(arr, size, x_pos);
+
+  if (i == q + 1) {
     return arr[q];
-  } else if (i < k) {
+  } else if (i < q + 1) {
     return select_kth(arr, q, i);
   } else {
-    return select_kth(arr + q + 1, size - q - 1, i - k);
+    return select_kth(arr + q + 1, size - (q + 1), i - (q + 1));
   }
 }
-
