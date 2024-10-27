@@ -1,4 +1,4 @@
-fn partition_around(arr: &mut [i32], x: usize) -> usize {
+fn partition_around<T: Ord>(arr: &mut [T], x: usize) -> usize {
     let size = arr.len();
     arr.swap(x, size - 1);
     let mut i = 0;
@@ -12,7 +12,7 @@ fn partition_around(arr: &mut [i32], x: usize) -> usize {
     i
 }
 
-fn ref_sort_5(a: &mut i32, b: &mut i32, c: &mut i32, d: &mut i32, e: &mut i32) {
+fn ref_sort_5<T: Ord>(a: &mut T, b: &mut T, c: &mut T, d: &mut T, e: &mut T) {
     if *a > *b {
         std::mem::swap(a, b);
     }
@@ -42,26 +42,21 @@ fn ref_sort_5(a: &mut i32, b: &mut i32, c: &mut i32, d: &mut i32, e: &mut i32) {
     }
 }
 
-fn sort_5(arr: &mut [i32], arr_start: usize) {
+fn sort_5<T: Ord>(arr: &mut [T], arr_start: usize) {
     let arr = &mut arr[arr_start..];
     let size = arr.len();
     let g = size / 5;
 
-    let (a, arr) = arr.split_at_mut(g);
-    let (b, arr) = arr.split_at_mut(g);
-    let (c, arr) = arr.split_at_mut(g);
-    let (d, e) = arr.split_at_mut(g);
-    for i in 0..g {
-        let a = &mut a[i];
-        let b = &mut b[i];
-        let c = &mut c[i];
-        let d = &mut d[i];
-        let e = &mut e[i];
-        ref_sort_5(a, b, c, d, e);
+    if let [a, b, c, d, e] = arr.chunks_exact_mut(g).collect::<Vec<_>>().as_mut_slice() {
+        for i in 0..g {
+            ref_sort_5(&mut a[i], &mut b[i], &mut c[i], &mut d[i], &mut e[i]);
+        }
+    } else {
+        panic!("Expected a slice of 5 elements");
     }
 }
 
-pub fn select_kth(arr: &mut [i32], i: usize) -> i32 {
+pub fn select_kth<T: Ord + Copy>(arr: &mut [T], i: usize) -> &T {
     let mut size = arr.len();
     let mut arr_start = 0;
     let mut i_mut = i;
@@ -73,7 +68,7 @@ pub fn select_kth(arr: &mut [i32], i: usize) -> i32 {
             }
         }
         if i_mut == 1 {
-            return arr[arr_start];
+            return &arr[arr_start];
         }
         arr_start += 1;
         size -= 1;
@@ -84,7 +79,7 @@ pub fn select_kth(arr: &mut [i32], i: usize) -> i32 {
 
     sort_5(arr, arr_start);
 
-    let x = select_kth(
+    let &x = select_kth(
         &mut arr[arr_start + 2 * g..arr_start + 3 * g],
         if g % 2 == 0 { g / 2 } else { g / 2 + 1 },
     );
@@ -97,7 +92,7 @@ pub fn select_kth(arr: &mut [i32], i: usize) -> i32 {
     let q = partition_around(&mut arr[arr_start..arr_start + size], x_pos);
 
     match i_mut.cmp(&(q + 1)) {
-        std::cmp::Ordering::Equal => arr[arr_start + q],
+        std::cmp::Ordering::Equal => &arr[arr_start + q],
         std::cmp::Ordering::Less => select_kth(&mut arr[arr_start..arr_start + q], i_mut),
         std::cmp::Ordering::Greater => select_kth(
             &mut arr[arr_start + q + 1..arr_start + size],
