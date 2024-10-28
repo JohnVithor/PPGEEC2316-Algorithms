@@ -1,3 +1,9 @@
+use std::{
+    env::args,
+    fs::File,
+    io::{BufRead, BufReader},
+};
+
 use algorithms::algorithms::weighted_median::weighted_median;
 
 #[derive(Debug)]
@@ -6,7 +12,7 @@ struct Point {
     y: i32,
 }
 
-fn _weighted_median_book_test() {
+fn book_example() {
     let values = [3, 8, 2, 5, 4, 6, 1];
     let weights = [0.12, 0.35, 0.025, 0.08, 0.15, 0.2, 0.075];
     let result = weighted_median(&values, &weights);
@@ -26,6 +32,11 @@ fn two_weighted_median(values: &[Point], weights: &[f64]) -> Option<Point> {
     let v_x = values.iter().map(|p| p.x).collect::<Vec<_>>();
     let v_y = values.iter().map(|p| p.y).collect::<Vec<_>>();
 
+    // abordagem válida pois a distancia considerada é a manhattan
+    // que é calculada ((x_1 - x_2).abs() + (y_1 - y_2).abs())
+    // dado que a mediana ponderada é a solução ideal para esse problema
+    // considerando apenas uma dimensão, então se calcularmos a mediana
+    // para x e y separadamente, teremos a solução ideal para o problema
     let result_x = weighted_median(&v_x, weights);
     let result_y = weighted_median(&v_y, weights);
 
@@ -35,9 +46,9 @@ fn two_weighted_median(values: &[Point], weights: &[f64]) -> Option<Point> {
     })
 }
 
-fn min_max_interval_testing(values: &[Point], weights: &[f64]) -> Option<Point> {
+fn min_max_interval_testing(values: &[Point], weights: &[f64]) -> Option<Vec<Point>> {
     let mut min_cost = f64::MAX;
-    let mut min_point = None;
+    let mut min_points = Vec::new();
     let (x_min, y_min) = values.iter().fold((i32::MAX, i32::MAX), |acc, p| {
         (acc.0.min(p.x), acc.1.min(p.y))
     });
@@ -54,38 +65,70 @@ fn min_max_interval_testing(values: &[Point], weights: &[f64]) -> Option<Point> 
                 let dy = curr_v.y - v.y;
                 cost += w * (dx.abs() + dy.abs()) as f64;
             }
+            // println!("{:?} cost = {}", curr_v, cost);
             if cost < min_cost {
                 min_cost = cost;
-                min_point = Some(curr_v);
+                min_points.clear();
+            }
+            if cost == min_cost {
+                min_cost = cost;
+                min_points.push(curr_v);
             }
         }
     }
-    min_point
+    if min_points.is_empty() {
+        None
+    } else {
+        Some(min_points)
+    }
+}
+
+fn read_points(file: File) -> Option<(Vec<Point>, Vec<f64>)> {
+    let mut points = Vec::new();
+    let mut weights = Vec::new();
+    let reader = BufReader::new(file);
+    for result in reader.lines() {
+        match result {
+            Ok(line) => {
+                let mut iter = line.split(',');
+                let x = iter.next()?.parse::<i32>().ok()?;
+                let y = iter.next()?.parse::<i32>().ok()?;
+                let w = iter.next()?.parse::<f64>().ok()?;
+                points.push(Point { x, y });
+                weights.push(w);
+            }
+            Err(_) => return None,
+        }
+    }
+    Some((points, weights))
 }
 
 fn main() {
-    let values = [
-        // Point { x: 0, y: 0 }, // should be the result
-        Point { x: 1, y: 0 },
-        Point { x: 0, y: 1 },
-        Point { x: -1, y: 0 },
-        Point { x: 0, y: -1 },
-        Point { x: 1, y: 1 },
-        Point { x: -1, y: -1 },
-    ];
-    let weights = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-    // let weights = [20.0, 1.0, 1.0, 1.0, 50.0, 1.0];
-    let sum_exp: f64 = weights.iter().map(|i: &f64| i.exp()).sum();
-    let weights: Vec<f64> = weights.iter().map(|i| i.exp() / sum_exp).collect();
+    // let values = [
+    //     // Point { x: 0, y: 0 }, // should be the result
+    //     Point { x: 1, y: 0 },
+    //     Point { x: 0, y: 1 },
+    //     Point { x: -1, y: 0 },
+    //     Point { x: 0, y: -1 },
+    //     Point { x: 1, y: 1 },
+    //     Point { x: -1, y: -1 },
+    // ];
+    // let weights = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
+    let file_path = args().nth(1).expect("missing file path");
+    let file = File::open(file_path).unwrap();
+    let (values, weights) = read_points(file).unwrap();
+    // let sum_exp: f64 = weights.iter().map(|i: &f64| i.exp()).sum();
+    // let weights: Vec<f64> = weights.iter().map(|i| i.exp() / sum_exp).collect();
 
     let now = std::time::Instant::now();
     let r = two_weighted_median(&values, &weights);
     println!("{:?}", now.elapsed());
-    println!("{:?}", r);
+    let r = r.unwrap();
+    println!("{} {}", r.x, r.y);
 
     let now = std::time::Instant::now();
     let r = min_max_interval_testing(&values, &weights);
     println!("{:?}", now.elapsed());
-
+    let r = r.unwrap();
     println!("{:?}", r);
 }
