@@ -12,7 +12,7 @@ struct Point {
     y: i32,
 }
 
-fn book_example() {
+fn _book_example() {
     let values = [3, 8, 2, 5, 4, 6, 1];
     let weights = [0.12, 0.35, 0.025, 0.08, 0.15, 0.2, 0.075];
     let result = weighted_median(&values, &weights);
