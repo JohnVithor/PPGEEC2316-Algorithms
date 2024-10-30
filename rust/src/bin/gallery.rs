@@ -1,7 +1,4 @@
-use std::{
-    collections::{vec_deque::VecDeque, LinkedList},
-    str,
-};
+use std::collections::{BTreeMap, HashMap, LinkedList};
 
 #[derive(Debug)]
 struct Photo {
@@ -18,16 +15,16 @@ struct ArrayGallery {
     photos: Vec<Photo>,
 }
 
-struct StackGallery {
-    photos: VecDeque<Photo>,
-}
-
-struct QueueGallery {
-    photos: VecDeque<Photo>,
-}
-
 struct LinkedListGallery {
     photos: LinkedList<Photo>,
+}
+
+struct HashGallery {
+    photos: HashMap<String, Photo>,
+}
+
+struct BTreeGallery {
+    photos: BTreeMap<String, Photo>,
 }
 
 impl Gallery for ArrayGallery {
@@ -38,38 +35,6 @@ impl Gallery for ArrayGallery {
     fn remove_photo(&mut self, name: &str) -> Option<Photo> {
         let index = self.photos.iter().position(|x| x.name == name)?;
         Some(self.photos.remove(index))
-    }
-
-    fn get_photo(&self, name: &str) -> Option<&Photo> {
-        let index = self.photos.iter().position(|x| x.name == name)?;
-        Some(&self.photos[index])
-    }
-}
-
-impl Gallery for StackGallery {
-    fn add_photo(&mut self, photo: Photo) {
-        self.photos.push_back(photo);
-    }
-
-    fn remove_photo(&mut self, name: &str) -> Option<Photo> {
-        let index = self.photos.iter().position(|x| x.name == name)?;
-        Some(self.photos.remove(index).unwrap())
-    }
-
-    fn get_photo(&self, name: &str) -> Option<&Photo> {
-        let index = self.photos.iter().position(|x| x.name == name)?;
-        Some(&self.photos[index])
-    }
-}
-
-impl Gallery for QueueGallery {
-    fn add_photo(&mut self, photo: Photo) {
-        self.photos.push_back(photo);
-    }
-
-    fn remove_photo(&mut self, name: &str) -> Option<Photo> {
-        let index = self.photos.iter().position(|x| x.name == name)?;
-        Some(self.photos.remove(index).unwrap())
     }
 
     fn get_photo(&self, name: &str) -> Option<&Photo> {
@@ -96,6 +61,34 @@ impl Gallery for LinkedListGallery {
     }
 }
 
+impl Gallery for HashGallery {
+    fn add_photo(&mut self, photo: Photo) {
+        self.photos.insert(photo.name.clone(), photo);
+    }
+
+    fn remove_photo(&mut self, name: &str) -> Option<Photo> {
+        self.photos.remove(name)
+    }
+
+    fn get_photo(&self, name: &str) -> Option<&Photo> {
+        self.photos.get(name)
+    }
+}
+
+impl Gallery for BTreeGallery {
+    fn add_photo(&mut self, photo: Photo) {
+        self.photos.insert(photo.name.clone(), photo);
+    }
+
+    fn remove_photo(&mut self, name: &str) -> Option<Photo> {
+        self.photos.remove(name)
+    }
+
+    fn get_photo(&self, name: &str) -> Option<&Photo> {
+        self.photos.get(name)
+    }
+}
+
 fn main() {
     let args = std::env::args().collect::<Vec<String>>();
     let mut current_names = Vec::new();
@@ -105,30 +98,27 @@ fn main() {
 
     let mut gallery: Box<dyn Gallery> = match args[1].as_str() {
         "array" => Box::new(ArrayGallery { photos: Vec::new() }),
-        "stack" => Box::new(StackGallery {
-            photos: VecDeque::new(),
+        "hash" => Box::new(HashGallery {
+            photos: HashMap::new(),
         }),
-        "queue" => Box::new(QueueGallery {
-            photos: VecDeque::new(),
+        "btree" => Box::new(BTreeGallery {
+            photos: BTreeMap::new(),
         }),
         "linked" => Box::new(LinkedListGallery {
             photos: LinkedList::new(),
         }),
         _ => panic!("Invalid gallery type"),
     };
-    // let mut gallery = ArrayGallery { photos: Vec::new() };
+    let n = args[2]
+        .parse::<usize>()
+        .expect("Invalid number of operations to execute");
 
-    // let mut gallery = StackGallery {
-    //     photos: VecDeque::new(),
-    // };
-    // let mut gallery = QueueGallery {
-    //     photos: VecDeque::new(),
-    // };
-    // let mut gallery = LinkedListGallery {
-    //     photos: LinkedList::new(),
-    // };
+    let seed = args[3]
+        .parse::<u64>()
+        .expect("Invalid seed for random number generator");
+    fastrand::seed(seed);
     let total = std::time::Instant::now();
-    for n in 0..100000 {
+    for n in 0..n {
         let op = if current_names.is_empty() {
             0
         } else {
@@ -152,7 +142,11 @@ fn main() {
                 let _photo = gallery.remove_photo(current_names[id].as_str());
                 let end = start.elapsed().as_nanos();
                 removal += end as f64;
-                // println!("Removed photo: {:?}", photo);
+                current_names.remove(id);
+                // match _photo {
+                //     Some(photo) => println!("Removed photo: {:?}", photo),
+                //     None => println!("Photo not found"),
+                // }
             }
             2 => {
                 let id = fastrand::usize(0..current_names.len());
@@ -160,7 +154,7 @@ fn main() {
                 let _photo = gallery.get_photo(current_names[id].as_str());
                 let end = start.elapsed().as_nanos();
                 search += end as f64;
-                // match photo {
+                // match _photo {
                 //     Some(photo) => println!("Found photo: {:?}", photo),
                 //     None => println!("Photo not found"),
                 // }
