@@ -32,7 +32,8 @@ ResultPair minimum_maximum_naive(int* arr, size_t size) {
   for (size_t i = 0; i < size; ++i) {
     if (arr[i] < result.pair.min) {
       result.pair.min = arr[i];
-    } else if (arr[i] > result.pair.max) {
+    }
+    if (arr[i] > result.pair.max) {
       result.pair.max = arr[i];
     }
   }

@@ -1,7 +1,7 @@
 CC = clang
 CFLAGS = -Wall -O3
 
-all: mkdir ./bin/sort ./bin/sort_ram ./bin/matrix ./bin/min_max ./bin/allocation ./bin/selection
+all: mkdir ./bin/sort ./bin/sort_ram ./bin/matrix ./bin/min_max ./bin/allocation ./bin/selection ./bin/create_array
 
 debug: CFLAGS = -Wall -O0 -g
 debug: all
@@ -94,6 +94,10 @@ mkdir:
 ./bin/randomized_selection.o: src/order_statistics/randomized_selection.c
 	$(CC) $(CFLAGS) -I./include -c $^ -o $@
 
+# Create array
+
+./bin/create_array: src/runners/create_array.c ./bin/utils.o
+	$(CC) $(CFLAGS) -I./include $^ -o ./bin/create_array
 
 clean:
 	rm -f ./bin/*

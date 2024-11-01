@@ -4,7 +4,7 @@ pub fn minimum_maximum_naive<T: PartialOrd + Copy>(arr: &[T]) -> Option<(T, T)> 
     }
     let mut min = arr[0];
     let mut max = arr[0];
-    for &x in arr.iter().skip(1) {
+    for &x in arr {
         if x < min {
             min = x;
         }
@@ -22,8 +22,7 @@ pub fn minimum_maximum<T: PartialOrd + Copy>(arr: &[T]) -> Option<(T, T)> {
 
     let mut min;
     let mut max;
-    let mut i;
-    if arr.len() % 2 == 0 {
+    let i = if arr.len() % 2 == 0 {
         if arr[0] > arr[1] {
             min = arr[1];
             max = arr[0];
@@ -31,29 +30,30 @@ pub fn minimum_maximum<T: PartialOrd + Copy>(arr: &[T]) -> Option<(T, T)> {
             min = arr[0];
             max = arr[1];
         }
-        i = 2;
+        2
     } else {
         min = arr[0];
         max = arr[0];
-        i = 1;
-    }
-    while i + 1 < arr.len() {
-        if arr[i] > arr[i + 1] {
-            if arr[i] > max {
-                max = arr[i];
+        1
+    };
+    for chunk in arr[i..].chunks_exact(2) {
+        let i = chunk[0];
+        let j = chunk[1];
+        if i > j {
+            if i > max {
+                max = i;
             }
-            if arr[i + 1] < min {
-                min = arr[i + 1];
+            if j < min {
+                min = j;
             }
         } else {
-            if arr[i + 1] > max {
-                max = arr[i + 1];
+            if j > max {
+                max = j;
             }
-            if arr[i] < min {
-                min = arr[i];
+            if i < min {
+                min = i;
             }
         }
-        i += 2;
     }
     Some((min, max))
 }

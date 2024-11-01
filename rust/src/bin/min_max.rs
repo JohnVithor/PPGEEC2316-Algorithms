@@ -1,7 +1,6 @@
 use algorithms::algorithms::minimum_maximum::{minimum_maximum, minimum_maximum_naive};
 use std::env::args;
 
-const SIZE_MAX: usize = 250000000;
 const SIZES: [usize; 66] = [
     10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000,
     3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 20000, 30000, 40000, 50000, 60000, 70000,
@@ -13,12 +12,12 @@ const SIZES: [usize; 66] = [
 
 fn main() {
     let args: Vec<String> = args().collect();
-    let seed: u64 = args[1].parse().unwrap();
-    fastrand::seed(seed);
-    let mut arr: Vec<usize> = (0..SIZE_MAX).collect();
-    for i in 0..SIZE_MAX {
-        arr.swap(i, fastrand::usize(..SIZE_MAX));
-    }
+    let path: &str = &args[1];
+    let bytes = std::fs::read(path).expect("Could not read the file");
+    let arr: Vec<i32> = bytes
+        .chunks_exact(4)
+        .map(|chunk| i32::from_le_bytes(chunk.try_into().unwrap()))
+        .collect();
     println!("size,run,naive,optimized");
     for &size in SIZES.iter() {
         for i in 1..101 {
