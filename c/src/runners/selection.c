@@ -1,19 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include "order_statistics.h"
 #include "utils.h"
 
 #define SIZE_MAX 250000000
 
 
-void measure_print(int* arr, size_t size, size_t i, char* name) {
+void measure_print(int* arr, int* arr_backup, size_t size, size_t i, char* name) {
   struct timespec ts_start;
   struct timespec ts_end;
   for (size_t j = 1; j < 11; ++j) {
     clock_gettime(CLOCK_MONOTONIC, &ts_start);
     int r1 = randomized_select_kth(arr, size, i);
     clock_gettime(CLOCK_MONOTONIC, &ts_end);
+    memcpy(arr, arr_backup, size * sizeof(int));
     double time_spent_rand =
         (double)(ts_end.tv_sec - ts_start.tv_sec) +
         ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
@@ -21,6 +23,7 @@ void measure_print(int* arr, size_t size, size_t i, char* name) {
     clock_gettime(CLOCK_MONOTONIC, &ts_start);
     int r2 = select_kth(arr, size, i);
     clock_gettime(CLOCK_MONOTONIC, &ts_end);
+    memcpy(arr, arr_backup, size * sizeof(int));
     double time_spent_med =
         (double)(ts_end.tv_sec - ts_start.tv_sec) +
         ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
@@ -34,28 +37,20 @@ void measure_print(int* arr, size_t size, size_t i, char* name) {
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {
-    printf("Uso: %s <seed> (seed >=0)\n", argv[0]);
+    printf("Uso: %s <file> \n", argv[0]);
     return 1;
   }
-  int seed = atoi(argv[1]);
-
-  if (seed < 0) {
-    printf("Uso: %s <seed> (seed >=0)\n", argv[0]);
+  FILE* f = fopen(argv[1], "rb");
+  if (f == NULL) {
+    printf("Erro ao abrir o arquivo\n");
     return 1;
   }
-  srand(seed);
 
   int* arr = (int*)safe_malloc(SIZE_MAX * sizeof(int));
-
-  for (size_t i = 0; i < SIZE_MAX; ++i) {
-    arr[i] = i;
-  }
-  for (size_t i = 0; i < SIZE_MAX; ++i) {
-    size_t j = rand() % SIZE_MAX;
-    int tmp = arr[i];
-    arr[i] = arr[j];
-    arr[j] = tmp;
-  }
+  int* arr_backup = (int*)safe_malloc(SIZE_MAX * sizeof(int));
+  fread(arr, sizeof(int), SIZE_MAX, f);
+  memcpy(arr_backup, arr, SIZE_MAX * sizeof(int));
+  fclose(f);
 
   size_t sizes[] = {
     10,20,30,40,50,60,70,80,90,
@@ -70,15 +65,15 @@ int main(int argc, char* argv[]) {
 
   printf("size,i,run,randomized,median_of_medians\n");
   for (size_t i = 0; i < 66; ++i) {
-    measure_print(arr, sizes[i], 1, "min");
-    measure_print(arr, sizes[i], sizes[i]/10, "1/10");
-    measure_print(arr, sizes[i], sizes[i]/4, "1/4");
-    measure_print(arr, sizes[i], sizes[i]/3, "1/3");
-    measure_print(arr, sizes[i], sizes[i]/2, "median");
-    measure_print(arr, sizes[i], 2*sizes[i]/3, "2/3");
-    measure_print(arr, sizes[i], 3*sizes[i]/4, "3/4");
-    measure_print(arr, sizes[i], 9*sizes[i]/10, "9/10");
-    measure_print(arr, sizes[i], sizes[i], "max");
+    measure_print(arr, arr_backup, sizes[i], 1, "min");
+    measure_print(arr, arr_backup, sizes[i], sizes[i]/10, "1/10");
+    measure_print(arr, arr_backup, sizes[i], sizes[i]/4, "1/4");
+    measure_print(arr, arr_backup, sizes[i], sizes[i]/3, "1/3");
+    measure_print(arr, arr_backup, sizes[i], sizes[i]/2, "median");
+    measure_print(arr, arr_backup, sizes[i], 2*sizes[i]/3, "2/3");
+    measure_print(arr, arr_backup, sizes[i], 3*sizes[i]/4, "3/4");
+    measure_print(arr, arr_backup, sizes[i], 9*sizes[i]/10, "9/10");
+    measure_print(arr, arr_backup, sizes[i], sizes[i], "max");
   }
   free(arr);
   return 0;

@@ -5,17 +5,17 @@ use std::env;
 use std::fmt::Display;
 use std::time::Instant;
 
-const SIZE_MAX: usize = 250_000_000;
-
-fn measure_print<T: Ord + Display + Copy>(arr: &mut [T], i: usize, name: &str) {
+fn measure_print<T: Ord + Display + Copy>(arr: &mut [T], arr_backup: &[T], i: usize, name: &str) {
     for j in 1..11 {
         let start = Instant::now();
         let &r1 = randomized_select_kth(arr, i);
         let time_spent_rand = start.elapsed().as_secs_f64();
+        arr.copy_from_slice(arr_backup);
 
         let start = Instant::now();
         let &r2 = select_kth(arr, i);
         let time_spent_med = start.elapsed().as_secs_f64();
+        arr.copy_from_slice(arr_backup);
 
         if r1 != r2 {
             println!("Valores diferentes: {} e {}", r1, r2);
@@ -34,27 +34,13 @@ fn measure_print<T: Ord + Display + Copy>(arr: &mut [T], i: usize, name: &str) {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    if args.len() != 2 {
-        println!("Uso: {} <seed> (seed >=0)", args[0]);
-        std::process::exit(1);
-    }
-
-    let seed: u64 = match args[1].parse::<i64>() {
-        Ok(n) if n >= 0 => n as u64,
-        _ => {
-            println!("Uso: {} <seed> (seed >=0)", args[0]);
-            std::process::exit(1);
-        }
-    };
-
-    fastrand::seed(seed);
-
-    let mut arr: Vec<i32> = (0..SIZE_MAX as i32).collect();
-
-    for i in 0..SIZE_MAX {
-        let j = fastrand::usize(0..SIZE_MAX);
-        arr.swap(i, j);
-    }
+    let path: &str = &args[1];
+    let bytes = std::fs::read(path).expect("Could not read the file");
+    let mut arr: Vec<i32> = bytes
+        .chunks_exact(4)
+        .map(|chunk| i32::from_le_bytes(chunk.try_into().unwrap()))
+        .collect();
+    let arr_backup = arr.clone();
 
     let sizes: [usize; 66] = [
         10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
@@ -68,14 +54,14 @@ fn main() {
     println!("size,i,run,randomized,median_of_medians");
 
     for &size in sizes.iter() {
-        measure_print(&mut arr[..size], 1, "min");
-        measure_print(&mut arr[..size], size / 10, "1/10");
-        measure_print(&mut arr[..size], size / 4, "1/4");
-        measure_print(&mut arr[..size], size / 3, "1/3");
-        measure_print(&mut arr[..size], size / 2, "median");
-        measure_print(&mut arr[..size], 2 * size / 3, "2/3");
-        measure_print(&mut arr[..size], 3 * size / 4, "3/4");
-        measure_print(&mut arr[..size], 9 * size / 10, "9/10");
-        measure_print(&mut arr[..size], size, "max");
+        measure_print(&mut arr[..size], &arr_backup[..size], 1, "min");
+        measure_print(&mut arr[..size], &arr_backup[..size], size / 10, "1/10");
+        measure_print(&mut arr[..size], &arr_backup[..size], size / 4, "1/4");
+        measure_print(&mut arr[..size], &arr_backup[..size], size / 3, "1/3");
+        measure_print(&mut arr[..size], &arr_backup[..size], size / 2, "median");
+        measure_print(&mut arr[..size], &arr_backup[..size], 2 * size / 3, "2/3");
+        measure_print(&mut arr[..size], &arr_backup[..size], 3 * size / 4, "3/4");
+        measure_print(&mut arr[..size], &arr_backup[..size], 9 * size / 10, "9/10");
+        measure_print(&mut arr[..size], &arr_backup[..size], size, "max");
     }
 }
