@@ -52,7 +52,7 @@ fn sort_5<T: Ord>(arr: &mut [T], arr_start: usize) {
             ref_sort_5(&mut a[i], &mut b[i], &mut c[i], &mut d[i], &mut e[i]);
         }
     } else {
-        panic!("Expected a slice of 5 elements");
+        unreachable!("Expected a slice of 5 elements");
     }
 }
 

@@ -45,7 +45,6 @@ int main(int argc, char* argv[]) {
     printf("Erro ao abrir o arquivo\n");
     return 1;
   }
-
   int* arr = (int*)safe_malloc(SIZE_MAX * sizeof(int));
   int* arr_backup = (int*)safe_malloc(SIZE_MAX * sizeof(int));
   fread(arr, sizeof(int), SIZE_MAX, f);
