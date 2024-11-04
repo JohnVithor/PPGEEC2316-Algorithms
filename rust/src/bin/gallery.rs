@@ -244,7 +244,7 @@ fn main() {
             }
             2 => {
                 let search_type = fastrand::u8(..=2);
-                let id = match search_type {
+                let _ = match search_type {
                     0 => {
                         let start = std::time::Instant::now();
                         let _photo = gallery.get_photo(current_names[0], 0, FirstOrLast::First);
@@ -275,7 +275,6 @@ fn main() {
                         id
                     }
                 };
-                current_names.remove(id);
                 // match _photo {
                 //     Some(photo) => println!("Found photo: {:?}", photo),
                 //     None => println!("Photo not found"),
