@@ -32,6 +32,9 @@ int main(int argc, char* argv[]) {
     10000000,20000000,30000000,40000000,50000000,60000000,70000000,80000000,90000000,
     100000000,200000000, 250000000
   };
+  double* arr_time_spent_naive = (double*)safe_malloc(66 * 100 * sizeof(double));
+  double* arr_time_spent_opt = (double*)safe_malloc(66 * 100 * sizeof(double));
+
   printf("size,run,naive,optimized\n");
   for (size_t i = 0; i < 66; ++i) {
     for (size_t j = 0; j < 100; ++j) {
@@ -41,20 +44,27 @@ int main(int argc, char* argv[]) {
       double time_spent_naive =
           (double)(ts_end.tv_sec - ts_start.tv_sec) +
           ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
-
+      arr_time_spent_naive[i*100+j] = time_spent_naive;
+    }
+  }
+  for (size_t i = 0; i < 66; ++i) {
+    for (size_t j = 0; j < 100; ++j) {
       clock_gettime(CLOCK_MONOTONIC, &ts_start);
       ResultPair r2 = minimum_maximum(v, sizes[i]);
       clock_gettime(CLOCK_MONOTONIC, &ts_end);
-      double time_spent =
+      double time_spent_opt =
           (double)(ts_end.tv_sec - ts_start.tv_sec) +
           ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
-
-      if (r1.status != r2.status || r1.pair.min != r2.pair.min || r1.pair.max != r2.pair.max) {
-        printf("Valores diferentes:\nmin: %d e %d\nmax: %d e %d\n ", r1.pair.min, r2.pair.min, r1.pair.max, r2.pair.max);
-      }
-      printf("%zu,%zu,%lf,%lf\n", sizes[i], j+1, time_spent_naive, time_spent);
+      arr_time_spent_opt[i*100+j] = time_spent_opt;
+    }
+  }
+  for (size_t i = 0; i < 66; ++i) {
+    for (size_t j = 0; j < 100; ++j) {
+      printf("%zu,%zu,%lf,%lf\n", sizes[i], j+1, arr_time_spent_naive[i*100+j], arr_time_spent_opt[i*100+j]);
     }
   }
   free(v);
+  free(arr_time_spent_naive);
+  free(arr_time_spent_opt);
   return 0;
 }

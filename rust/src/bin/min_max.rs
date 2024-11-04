@@ -1,5 +1,5 @@
 use algorithms::algorithms::minimum_maximum::{minimum_maximum, minimum_maximum_naive};
-use std::env::args;
+use std::{collections::VecDeque, env::args};
 
 const SIZES: [usize; 66] = [
     10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000,
@@ -19,23 +19,37 @@ fn main() {
         .map(|chunk| i32::from_le_bytes(chunk.try_into().unwrap()))
         .collect();
     println!("size,run,naive,optimized");
+    let mut store = Vec::new();
+    let mut naives = VecDeque::new();
+    let mut optimized = VecDeque::new();
+
     for &size in SIZES.iter() {
-        for i in 1..101 {
+        for _i in 1..101 {
             let arr = &arr[..size];
 
             let start = std::time::Instant::now();
             let r1 = minimum_maximum_naive(arr).unwrap();
             let naive_time = start.elapsed().as_secs_f64();
+            naives.push_back(naive_time);
+            store.push(r1);
+        }
+    }
+    for &size in SIZES.iter() {
+        for _i in 1..101 {
+            let arr = &arr[..size];
             let start = std::time::Instant::now();
             let r2 = minimum_maximum(arr).unwrap();
             let optimized_time = start.elapsed().as_secs_f64();
-            if r1.0 != r2.0 || r1.1 != r2.1 {
-                println!(
-                    "Valores diferentes:\nmin: {} e {}\nmax: {} e {}\n ",
-                    r1.0, r2.0, r1.1, r2.1,
-                );
-            }
+            optimized.push_back(optimized_time);
+            store.push(r2);
+        }
+    }
+    for &size in SIZES.iter() {
+        for i in 1..101 {
+            let naive_time = naives.pop_front().unwrap();
+            let optimized_time = optimized.pop_front().unwrap();
             println!("{size},{i},{:.6},{:.6}", naive_time, optimized_time);
         }
     }
+    store.clear();
 }
