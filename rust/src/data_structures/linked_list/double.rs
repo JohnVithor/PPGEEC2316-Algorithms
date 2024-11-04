@@ -30,7 +30,7 @@ impl<T> Node<T> {
         }
     }
 
-    fn into_non_null(self) -> NonNull<Node<T>> {
+    pub fn into_non_null(self) -> NonNull<Node<T>> {
         unsafe { NonNull::new_unchecked(Box::into_raw(Box::new(self))) }
     }
 }
@@ -128,6 +128,14 @@ impl<T> LinkedList<T> {
 
     pub fn back(&self) -> Option<&T> {
         self.back.map(|node| unsafe { &node.as_ref().value })
+    }
+
+    pub fn start_link(&mut self) -> &mut Link<T> {
+        &mut self.front
+    }
+
+    pub fn end_link(&mut self) -> &mut Link<T> {
+        &mut self.back
     }
 }
 
