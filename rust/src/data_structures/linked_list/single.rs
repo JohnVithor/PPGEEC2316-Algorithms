@@ -70,6 +70,73 @@ impl<T> LinkedList<T> {
             node.value
         })
     }
+
+    pub fn push_back(&mut self, value: T) {
+        let mut current = &mut self.head;
+        while let Some(node) = current {
+            current = &mut node.next;
+        }
+        *current = Some(Box::new(Node::new(value)));
+    }
+
+    pub fn pop_back(&mut self) -> Option<T> {
+        let mut current = &mut self.head;
+        while current.as_ref().unwrap().next.is_some() {
+            current = &mut current.as_mut().unwrap().next;
+        }
+        current.take().map(|node| node.value)
+    }
+
+    pub fn get(&self, index: usize) -> Option<&T> {
+        let mut current = &self.head;
+        let mut i = 0;
+        while let Some(node) = current {
+            if i == index {
+                return Some(&node.value);
+            }
+            current = &node.next;
+            i += 1;
+        }
+        None
+    }
+
+    pub fn get_mut(&mut self, index: usize) -> Option<&mut T> {
+        let mut current = &mut self.head;
+        let mut i = 0;
+        while let Some(node) = current {
+            if i == index {
+                return Some(&mut node.value);
+            }
+            current = &mut node.next;
+            i += 1;
+        }
+        None
+    }
+
+    pub fn remove(&mut self, f: impl Fn(&T) -> bool) -> Option<T> {
+        let mut current = &mut self.head;
+        while current.is_some() {
+            if (f)(&current.as_mut().unwrap().value) {
+                let mut c = current.take().unwrap();
+                let next = c.next.take();
+                *current = next;
+                return Some(c.value);
+            }
+            current = &mut current.as_mut().unwrap().next;
+        }
+        None
+    }
+
+    pub fn search(&self, f: impl Fn(&T) -> bool) -> Option<&T> {
+        let mut current = &self.head;
+        while let Some(node) = current {
+            if (f)(&node.value) {
+                return Some(&node.value);
+            }
+            current = &node.next;
+        }
+        None
+    }
 }
 
 impl<T: Debug> Debug for LinkedList<T> {

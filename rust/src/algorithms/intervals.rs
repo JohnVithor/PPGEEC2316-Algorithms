@@ -11,8 +11,8 @@ pub trait IntervalManager {
     fn get_interval(&self, user: i32) -> Option<&Interval>;
 }
 
-pub mod b_tree_interval;
-pub mod hash_interval;
-pub mod linked_list_interval;
+// pub mod b_tree_interval;
+// pub mod hash_interval;
+// pub mod linked_list_interval;
 pub mod vec_deque_interval;
 pub mod vec_interval;

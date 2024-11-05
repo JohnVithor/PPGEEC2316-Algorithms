@@ -92,6 +92,10 @@ impl<T> RawVec<T> {
         unsafe { &*self.data.as_ptr().add(index) }
     }
 
+    pub fn get_mut(&mut self, index: usize) -> &mut T {
+        unsafe { &mut *self.data.as_ptr().add(index) }
+    }
+
     pub fn set(&mut self, index: usize, value: T) {
         unsafe {
             *self.data.as_ptr().add(index) = value;

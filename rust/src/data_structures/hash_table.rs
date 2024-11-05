@@ -1,7 +1,7 @@
 use super::raw_vec::RawVecError;
 
-pub mod double_hashing;
-pub mod linear_probing;
+pub mod chaining;
+pub mod open_address;
 
 #[derive(Debug)]
 pub enum HashTableError {
