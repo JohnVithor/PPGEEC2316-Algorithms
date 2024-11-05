@@ -3,7 +3,6 @@ use std::{env::args, time::Instant};
 use algorithms::data_structures::matrix::{
     matrix_multiply, matrix_multiply_transposed, strassen, Matrix, MutMatrix,
 };
-use rand::{Rng, SeedableRng};
 
 type Item = f64;
 const LOWER_BOUND: Item = 0.0;
@@ -28,15 +27,13 @@ fn main() -> Result<(), ()> {
         );
         return Err(());
     }
-
-    let a = rand::rngs::StdRng::seed_from_u64(0)
-        .sample_iter(rand::distributions::Uniform::new(LOWER_BOUND, UPPER_BOUND))
-        .take(size * size)
-        .collect::<Vec<Item>>();
-    let mut b = rand::rngs::StdRng::seed_from_u64(1)
-        .sample_iter(rand::distributions::Uniform::new(LOWER_BOUND, UPPER_BOUND))
-        .take(size * size)
-        .collect::<Vec<Item>>();
+    fastrand::seed(seed as u64);
+    let a = (0..size * size)
+        .map(|_| LOWER_BOUND + (UPPER_BOUND - LOWER_BOUND) * fastrand::f64())
+        .collect::<Vec<_>>();
+    let mut b = (0..size * size)
+        .map(|_| LOWER_BOUND + (UPPER_BOUND - LOWER_BOUND) * fastrand::f64())
+        .collect::<Vec<_>>();
 
     // let a: Vec<Item> = (1..=(size * size)).map(|x| x as Item).collect();
     // let mut b: Vec<Item> = (1..=(size * size)).map(|x| x as Item).collect();

@@ -1,7 +1,6 @@
 use std::env::args;
 
 use algorithms::algorithms::sort;
-use rand::{distributions::Uniform, Rng, SeedableRng};
 
 fn main() -> Result<(), ()> {
     let args: Vec<String> = args().collect();
@@ -69,11 +68,10 @@ fn main() -> Result<(), ()> {
         9 => "radix sort",
         _ => unreachable!(),
     };
-    let rng = rand::rngs::StdRng::seed_from_u64(seed as u64);
-    let mut arr = rng
-        .sample_iter(Uniform::new(0, max_value))
-        .take(size)
-        .collect::<Vec<usize>>();
+    fastrand::seed(seed as u64);
+    let mut arr = (0..size)
+        .map(|_| fastrand::usize(0..max_value))
+        .collect::<Vec<_>>();
     // println!("{:?}", arr);
     let now = std::time::Instant::now();
     (fn_alg)(&mut arr);

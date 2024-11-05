@@ -1,4 +1,4 @@
-use super::HashTableError;
+use super::{fix_capacity, HashTableError};
 use crate::data_structures::raw_vec::RawVec;
 use std::fmt::Debug;
 use std::hash::{DefaultHasher, Hash, Hasher};
@@ -7,10 +7,16 @@ pub struct HashTable<K: Hash + PartialEq, V: PartialEq> {
     table: RawVec<Option<(K, V)>>,
     capacity: usize,
     probe: fn(&K) -> usize,
+    steper: fn(usize, usize) -> usize,
 }
 
 impl<K: Debug + Hash + PartialEq, V: PartialEq> HashTable<K, V> {
-    pub fn new(capacity: usize, probe: fn(&K) -> usize) -> Result<Self, HashTableError> {
+    pub fn new(
+        capacity: usize,
+        probe: fn(&K) -> usize,
+        steper: fn(usize, usize) -> usize,
+    ) -> Result<Self, HashTableError> {
+        let capacity = fix_capacity(capacity);
         let mut table = match RawVec::new(capacity) {
             Ok(table) => table,
             Err(e) => return Err(HashTableError::Memory(e)),
@@ -22,6 +28,7 @@ impl<K: Debug + Hash + PartialEq, V: PartialEq> HashTable<K, V> {
             table,
             capacity,
             probe,
+            steper,
         })
     }
 
@@ -32,98 +39,55 @@ impl<K: Debug + Hash + PartialEq, V: PartialEq> HashTable<K, V> {
     }
 
     pub fn insert(&mut self, key: K, value: V) -> Result<(), HashTableError> {
-        let mut modifier = 0;
         let hash = self.hash(&key);
         let step = (self.probe)(&key);
-        let mut i = 0;
-        let mut best_index = (modifier + hash + i * step) % self.capacity;
-        match self.table.get(best_index) {
-            Some((k, v)) => {
-                if k == &key && v == &value {
-                    return Ok(());
-                }
-            }
-            None => {
-                self.table.set(best_index, Some((key, value)));
+        let mut index = hash % self.capacity;
+        let initial_index = index;
+        while let Some((k, _)) = self.table.get(index).as_ref() {
+            if k == &key {
+                self.table.set(index, Some((key, value)));
                 return Ok(());
             }
-        }
-        i += 1;
-        let mut index = (modifier + hash + i * step) % self.capacity;
-        while modifier < self.capacity {
-            match self.table.get(index) {
-                Some((k, v)) => {
-                    if k == &key && v == &value {
-                        return Ok(());
-                    }
-                }
-                None => {
-                    self.table.set(index, Some((key, value)));
-                    return Ok(());
-                }
-            }
-            i += 1;
-            index = (modifier + hash + i * step) % self.capacity;
-            if index == best_index {
-                modifier += 1;
-                best_index = (modifier + hash + i * step) % self.capacity;
-                index = best_index;
+            index = (self.steper)(index, step) % self.capacity;
+            if index == initial_index {
+                return Err(HashTableError::Full);
             }
         }
-        Err(HashTableError::Full)
+        self.table.set(index, Some((key, value)));
+        Ok(())
     }
 
-    pub fn remove(&mut self, key: &K) {
-        let mut modifier = 0;
+    pub fn remove(&mut self, key: &K) -> Option<V> {
         let hash = self.hash(key);
         let step = (self.probe)(key);
-        let mut i = 0;
-        let mut best_index = (modifier + hash + i * step) % self.capacity;
-
-        if let Some((k, _)) = self.table.get(best_index) {
+        let mut index = hash % self.capacity;
+        let initial_index = index;
+        while let Some((k, _)) = self.table.get(index).as_ref() {
             if k == key {
-                self.table.set(best_index, None);
-                return;
+                let r = self.table.get_mut(index).take();
+                self.table.set(index, None);
+                return r.map(|(_, v)| v);
+            }
+            index = (self.steper)(index, step) % self.capacity;
+            if index == initial_index {
+                break;
             }
         }
-
-        i += 1;
-        let mut index = (modifier + hash + i * step) % self.capacity;
-        while modifier < self.capacity {
-            if let Some((k, _)) = self.table.get(index) {
-                if k == key {
-                    self.table.set(best_index, None);
-                    return;
-                }
-            }
-            i += 1;
-            index = (modifier + hash + i * step) % self.capacity;
-            if index == best_index {
-                modifier += 1;
-                best_index = (modifier + hash + i * step) % self.capacity;
-                index = best_index;
-            }
-        }
+        None
     }
 
     pub fn get(&self, key: &K) -> Option<&V> {
-        let mut modifier = 0;
         let hash = self.hash(key);
         let step = (self.probe)(key);
-        let mut i = 0;
-        let mut index = (modifier + hash + i * step) % self.capacity;
-        let mut best_index = index;
-        while modifier < self.capacity {
-            let (k, v) = self.table.get(index).as_ref().unwrap();
+        let mut index = hash % self.capacity;
+        let initial_index = index;
+        while let Some((k, v)) = self.table.get(index).as_ref() {
             if k == key {
                 return Some(v);
             }
-            i += 1;
-            index = (modifier + hash + i * step) % self.capacity;
-            if index == best_index {
-                modifier += 1;
-                best_index = (modifier + hash + i * step) % self.capacity;
-                index = best_index;
+            index = (self.steper)(index, step) % self.capacity;
+            if index == initial_index {
+                break;
             }
         }
         None
