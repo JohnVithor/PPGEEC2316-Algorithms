@@ -45,3 +45,19 @@
 2. Implemente e aponte vantagens e desvantagens dos algoritmos de Kruskal e Prim para gerar uma árvore de abrangência mínima. Use exemplos práticos da sua área para demonstrar suas conclusões.
 
 3. Implemente o algoritmo do Dijkstra e utilize-o para resolver um problema prático da sua área de interesse.
+
+# Questões 7
+
+1. Estude e apresente como as primitivas de paralelismo spawn, sync, and parallel for podem ser relacionadas com o padrão e modelo de programação OpenMP.
+
+2. Escolha um dos algoritmos que já implementou nas listas anteriores que poderiam se beneficiar de paralelismo e implemente-os utilizando OpenMP.
+
+3. Apresente uma análise experimental do algoritmo implementado na questão 2 utilizando o NPAD para realizar suas medições.
+
+# Questões 8
+
+1. Mostre experimentalmente que a taxa de competitividade do algoritmo de mover para a frente se aproxima de 4 estatisticamente.
+
+2. Mostre experimentalmente que a taxa de competitividade do algoritmo de uso menos recente tem taxa de competitividade independente do tamanho da entrada para o mecanismo de memória cache.
+
+3. Compare o desempenho do algoritmo de marcação aleatória com o algoritmo de uso menos recente para qualquer um dos programas que já implementou na disciplina. Dica: extraia o traço de memória do seu programa e use-o como entrada para a sua comparação1. 
