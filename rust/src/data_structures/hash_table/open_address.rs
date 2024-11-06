@@ -6,14 +6,14 @@ use std::hash::{DefaultHasher, Hash, Hasher};
 pub struct HashTable<K: Hash + PartialEq, V: PartialEq> {
     table: RawVec<Option<(K, V)>>,
     capacity: usize,
-    probe: fn(&K) -> usize,
+    probe: Box<dyn Fn(&K) -> usize>,
     steper: fn(usize, usize) -> usize,
 }
 
 impl<K: Debug + Hash + PartialEq, V: PartialEq> HashTable<K, V> {
     pub fn new(
         capacity: usize,
-        probe: fn(&K) -> usize,
+        probe: Box<dyn Fn(&K) -> usize>,
         steper: fn(usize, usize) -> usize,
     ) -> Result<Self, HashTableError> {
         let capacity = fix_capacity(capacity);

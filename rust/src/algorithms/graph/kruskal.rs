@@ -1,11 +1,13 @@
 use std::cmp::Ordering;
+use std::collections::BinaryHeap;
 
-use crate::data_structures::graph::Edge;
-use crate::data_structures::graph::Graph;
+use crate::data_structures::graph::adjacency_list::Graph as AdjGraph;
+use crate::data_structures::graph::edge_list::Edge;
+use crate::data_structures::graph::edge_list::Graph;
 
 pub fn kruskal(graph: &Graph) -> Vec<&Edge> {
     let mut edges: Vec<&Edge> = graph.edges().iter().collect();
-    edges.sort();
+    edges.sort_unstable_by(|e1, e2| e1.cmp(e2).reverse());
 
     let mut parent = (0..graph.vertices()).collect::<Vec<_>>();
     let mut rank = vec![0; graph.vertices()];
@@ -37,4 +39,35 @@ pub fn find(parent: &mut Vec<usize>, x: usize) -> usize {
         parent[x] = find(parent, parent[x]);
     }
     parent[x]
+}
+
+pub fn accidental_kruskal(graph: &AdjGraph) -> Vec<Edge> {
+    let mut heap = BinaryHeap::new();
+
+    let n = graph.vertices().len();
+
+    let mut visited = vec![false; n];
+
+    let mut mst: Vec<Edge> = Vec::new();
+
+    for (source, edges) in graph.vertices().iter().enumerate() {
+        for edge in edges {
+            heap.push(Edge {
+                weight: edge.weight,
+                source,
+                target: edge.target,
+            });
+        }
+    }
+
+    while let Some(edge) = heap.pop() {
+        if !visited[edge.target] || !visited[edge.source] {
+            visited[edge.target] = true;
+
+            visited[edge.source] = true;
+
+            mst.push(edge);
+        }
+    }
+    mst
 }
