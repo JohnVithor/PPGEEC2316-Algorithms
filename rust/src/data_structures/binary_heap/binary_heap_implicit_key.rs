@@ -1,11 +1,17 @@
 use std::fmt::Debug;
 
-pub struct BinaryHeap<T: Ord> {
+pub struct BinaryHeap<T: PartialOrd> {
     pub data: Vec<T>,
 }
 
-impl<T: Ord + Debug> BinaryHeap<T> {
-    pub fn new(data: Vec<T>) -> Self {
+impl<T: PartialOrd + Debug> BinaryHeap<T> {
+    pub fn new_with_capacity(cap: usize) -> Self {
+        BinaryHeap {
+            data: Vec::with_capacity(cap),
+        }
+    }
+
+    pub fn from(data: Vec<T>) -> Self {
         let mut heap = BinaryHeap { data };
         for i in (0..(heap.data.len() / 2)).rev() {
             heap.heapify(i);
@@ -44,15 +50,15 @@ impl<T: Ord + Debug> BinaryHeap<T> {
         }
     }
 
-    pub fn get_max(&self) -> Option<&T> {
+    pub fn top(&self) -> Option<&T> {
         self.data.first()
     }
 
-    pub fn get_max_mut(&mut self) -> Option<&mut T> {
+    pub fn top_mut(&mut self) -> Option<&mut T> {
         self.data.first_mut()
     }
 
-    pub fn extract_max(&mut self) -> Option<T> {
+    pub fn pop(&mut self) -> Option<T> {
         if self.data.is_empty() {
             return None;
         }

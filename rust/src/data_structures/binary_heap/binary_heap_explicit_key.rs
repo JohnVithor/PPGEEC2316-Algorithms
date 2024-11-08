@@ -1,8 +1,8 @@
-pub struct BinaryHeap<T: Eq, K: Ord> {
+pub struct BinaryHeap<T: Eq, K: PartialOrd> {
     pub data: Vec<(K, T)>,
 }
 
-impl<T: Eq, K: Ord> BinaryHeap<T, K> {
+impl<T: Eq, K: PartialOrd> BinaryHeap<T, K> {
     pub fn create(data: Vec<T>, keys: Vec<K>) -> Self {
         let mut heap = BinaryHeap {
             data: keys.into_iter().zip(data).collect::<Vec<(K, T)>>(),
@@ -52,15 +52,15 @@ impl<T: Eq, K: Ord> BinaryHeap<T, K> {
         }
     }
 
-    pub fn get_max(&self) -> Option<&T> {
+    pub fn top(&self) -> Option<&T> {
         Some(&self.data.first()?.1)
     }
 
-    pub fn get_max_mut(&mut self) -> Option<&mut T> {
+    pub fn top_mut(&mut self) -> Option<&mut T> {
         Some(&mut self.data.first_mut()?.1)
     }
 
-    pub fn extract_max(&mut self) -> Option<T> {
+    pub fn pop(&mut self) -> Option<T> {
         if self.data.is_empty() {
             return None;
         }

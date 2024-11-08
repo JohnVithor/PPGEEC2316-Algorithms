@@ -1,57 +1,41 @@
-#[derive(Debug, PartialEq, Eq)]
-pub struct Edge {
-    pub source: usize,
-    pub target: usize,
-    pub weight: i32,
-}
+use std::collections::HashSet;
 
-impl PartialOrd for Edge {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
+use super::{UndirectedGraph, WeightedEdge};
 
-impl Ord for Edge {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.weight
-            .cmp(&other.weight)
-            .then(self.source.cmp(&other.source))
-            .then(self.target.cmp(&other.target))
-            .reverse()
-    }
-}
-
+#[derive(Debug, Default)]
 pub struct Graph {
-    edges: Vec<Edge>,
-    vertices: usize,
+    edges: Vec<WeightedEdge>,
 }
 
 impl Graph {
-    pub fn new(vertices: usize) -> Self {
-        Graph {
-            edges: Vec::new(),
-            vertices,
-        }
+    pub fn new() -> Self {
+        Graph::default()
     }
+}
 
-    pub fn add_edge(&mut self, source: usize, target: usize, weight: i32) {
-        self.edges.push(Edge {
+impl UndirectedGraph for Graph {
+    fn add_edge(&mut self, source: usize, target: usize, weight: usize) {
+        self.edges.push(WeightedEdge {
             source,
             target,
             weight,
         });
-        self.edges.push(Edge {
+        self.edges.push(WeightedEdge {
             source: target,
             target: source,
             weight,
         });
     }
 
-    pub fn edges(&self) -> &Vec<Edge> {
-        &self.edges
+    fn neighbors(&self, node: usize) -> impl Iterator<Item = &WeightedEdge> {
+        self.edges.iter().filter(move |x| x.source == node)
     }
-
-    pub fn vertices(&self) -> usize {
-        self.vertices
+    fn size(&self) -> usize {
+        let mut nodes = HashSet::new();
+        for edge in &self.edges {
+            nodes.insert(edge.source);
+            nodes.insert(edge.target);
+        }
+        nodes.len()
     }
 }

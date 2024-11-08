@@ -1,20 +1,28 @@
 use std::cmp::Ordering;
-use std::collections::BinaryHeap;
 
-use crate::data_structures::graph::adjacency_list::Graph as AdjGraph;
-use crate::data_structures::graph::edge_list::Edge;
-use crate::data_structures::graph::edge_list::Graph;
+use crate::data_structures::{
+    binary_heap::binary_heap_explicit_key::BinaryHeap,
+    graph::{UndirectedGraph, WeightedEdge},
+};
 
-pub fn kruskal(graph: &Graph) -> Vec<&Edge> {
-    let mut edges: Vec<&Edge> = graph.edges().iter().collect();
-    edges.sort_unstable_by(|e1, e2| e1.cmp(e2).reverse());
+pub fn kruskal(graph: &impl UndirectedGraph) -> Vec<&WeightedEdge> {
+    let mut edges: Vec<&WeightedEdge> = {
+        let mut edges: Vec<&WeightedEdge> = Vec::new();
+        for i in 0..graph.size() {
+            for edge in graph.neighbors(i) {
+                edges.push(edge);
+            }
+        }
+        edges
+    };
+    edges.sort_unstable_by(|a, b| a.weight.cmp(&b.weight));
 
-    let mut parent = (0..graph.vertices()).collect::<Vec<_>>();
-    let mut rank = vec![0; graph.vertices()];
+    let mut parent = (0..graph.size()).collect::<Vec<_>>();
+    let mut rank = vec![0; graph.size()];
 
     let mut mst = Vec::new();
 
-    for edge in edges {
+    for edge in edges.into_iter() {
         let root_source = find(&mut parent, edge.source);
         let root_target = find(&mut parent, edge.target);
 
@@ -41,31 +49,23 @@ pub fn find(parent: &mut Vec<usize>, x: usize) -> usize {
     parent[x]
 }
 
-pub fn accidental_kruskal(graph: &AdjGraph) -> Vec<Edge> {
-    let mut heap = BinaryHeap::new();
+pub fn accidental_kruskal(graph: &impl UndirectedGraph) -> Vec<&WeightedEdge> {
+    let mut heap = BinaryHeap::new(vec![]);
 
-    let n = graph.vertices().len();
+    let mut visited = vec![false; graph.size()];
 
-    let mut visited = vec![false; n];
+    let mut mst: Vec<&WeightedEdge> = Vec::new();
 
-    let mut mst: Vec<Edge> = Vec::new();
-
-    for (source, edges) in graph.vertices().iter().enumerate() {
-        for edge in edges {
-            heap.push(Edge {
-                weight: edge.weight,
-                source,
-                target: edge.target,
-            });
+    for i in 0..graph.size() {
+        for edge in graph.neighbors(i) {
+            heap.insert(edge, edge.weight);
         }
     }
 
     while let Some(edge) = heap.pop() {
         if !visited[edge.target] || !visited[edge.source] {
             visited[edge.target] = true;
-
             visited[edge.source] = true;
-
             mst.push(edge);
         }
     }
