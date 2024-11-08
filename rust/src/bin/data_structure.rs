@@ -69,6 +69,10 @@ fn eval_hashmap_open(
 
 fn main() {
     let args: Vec<String> = args().collect();
+    if args.len() != 5 {
+        eprintln!("Usage: {} <seed> <size> <modifier> <tests>", args[0]);
+        std::process::exit(1);
+    }
     let seed: u64 = args[1].parse().unwrap();
     let size: usize = args[2].parse().unwrap();
     let modifier: f32 = args[3].parse().unwrap();
