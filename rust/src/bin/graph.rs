@@ -39,7 +39,7 @@ fn main() {
             mst.iter().map(|x| x.weight).sum::<usize>()
         );
 
-        let mut adj_graph = AdjGraph::new(5);
+        let mut adj_graph = AdjGraph::new((0..5).collect());
         adj_graph.add_edge(0, 1, 2);
         adj_graph.add_edge(0, 3, 6);
         adj_graph.add_edge(0, 4, 5);
@@ -70,7 +70,7 @@ fn main() {
         );
     }
     {
-        let g1 = EdgeGraph::random_connected(0, 12, 100, 100);
+        let g1 = EdgeGraph::random_connected(0, (0..12).collect(), 100, 100);
         let start = std::time::Instant::now();
         let kruskal_mst = accidental_kruskal(&g1);
         println!("kruskal elapsed time: {:?}", start.elapsed().as_nanos());

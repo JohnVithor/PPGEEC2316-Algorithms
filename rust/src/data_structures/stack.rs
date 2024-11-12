@@ -17,7 +17,10 @@ impl<T: core::fmt::Debug> core::fmt::Debug for Stack<T> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("Stack")
             .field("buffer", unsafe {
-                &core::slice::from_raw_parts(self.buffer.data.as_ptr(), self.len).iter()
+                &core::slice::from_raw_parts(self.buffer.data.as_ptr(), self.len)
+                    .iter()
+                    .rev()
+                    .collect::<Vec<&T>>()
             })
             .field("cap", &self.buffer.cap)
             .field("len", &self.len)

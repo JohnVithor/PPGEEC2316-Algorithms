@@ -62,16 +62,15 @@ impl<K: Debug + Hash + PartialEq, V: PartialEq> HashTable<K, V> {
         let step = (self.probe)(key);
         let mut index = hash % self.capacity;
         let initial_index = index;
-        while let Some((k, _)) = self.table.get(index).as_ref() {
-            if k == key {
-                let r = self.table.get_mut(index).take();
-                self.table.set(index, None);
-                return r.map(|(_, v)| v);
+        while initial_index != index {
+            if let Some((k, _)) = self.table.get(index).as_ref() {
+                if k == key {
+                    let r = self.table.get_mut(index).take();
+                    self.table.set(index, None);
+                    return r.map(|(_, v)| v);
+                }
             }
             index = (self.steper)(index, step) % self.capacity;
-            if index == initial_index {
-                break;
-            }
         }
         None
     }
@@ -81,14 +80,13 @@ impl<K: Debug + Hash + PartialEq, V: PartialEq> HashTable<K, V> {
         let step = (self.probe)(key);
         let mut index = hash % self.capacity;
         let initial_index = index;
-        while let Some((k, v)) = self.table.get(index).as_ref() {
-            if k == key {
-                return Some(v);
+        while initial_index != index {
+            if let Some((k, v)) = self.table.get(index).as_ref() {
+                if k == key {
+                    return Some(v);
+                }
             }
             index = (self.steper)(index, step) % self.capacity;
-            if index == initial_index {
-                break;
-            }
         }
         None
     }

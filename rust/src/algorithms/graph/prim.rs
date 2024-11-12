@@ -3,21 +3,20 @@ use crate::data_structures::{
     graph::{UndirectedGraph, WeightedEdge},
 };
 
-pub fn prim(graph: &impl UndirectedGraph) -> Vec<&WeightedEdge> {
+pub fn prim<T: Eq + Clone>(graph: &impl UndirectedGraph<T>) -> Vec<&WeightedEdge<T>> {
     let mut heap = BinaryHeap::new(vec![]);
-    let n = graph.size();
-    let mut visited = vec![false; n];
-    let mut mst: Vec<&WeightedEdge> = Vec::new();
-    for i in 0..n {
-        if visited[i] {
+    let mut visited = vec![];
+    let mut mst: Vec<&WeightedEdge<T>> = Vec::new();
+    for i in graph.nodes() {
+        if visited.contains(&i) {
             continue;
         }
-        visited[i] = true;
-        for edge in graph.neighbors(0) {
+        visited.push(i);
+        for edge in graph.neighbors(i) {
             heap.insert(edge, edge.weight);
         }
         while let Some(edge) = heap.pop() {
-            if visited[edge.target] {
+            if visited.contains(&&edge.target) {
                 for e in &mut mst {
                     if edge.weight < e.weight
                         && (e.source == edge.source
@@ -31,11 +30,11 @@ pub fn prim(graph: &impl UndirectedGraph) -> Vec<&WeightedEdge> {
                 }
                 continue;
             }
-            visited[edge.target] = true;
-            let target = edge.target;
+            visited.push(&edge.target);
+            let target = &edge.target;
             mst.push(edge);
             for neigh in graph.neighbors(target) {
-                if visited[neigh.target] {
+                if visited.contains(&&neigh.target) {
                     continue;
                 }
                 heap.insert(neigh, neigh.weight);
