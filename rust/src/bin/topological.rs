@@ -1,10 +1,10 @@
 use algorithms::{
     algorithms::graph::topological_ordering::topological_sort,
-    data_structures::graph::{adjacency_list::Graph, DirectedGraph},
+    data_structures::graph::{adjacency_list::AdjGraph, DirectedGraph},
 };
 
 fn main() {
-    let mut graph = Graph::new(
+    let mut graph = AdjGraph::new(
         [
             "undershorts",
             "pants",

@@ -1,11 +1,9 @@
 use algorithms::algorithms::graph::kruskal::accidental_kruskal;
 use algorithms::data_structures::graph::UndirectedGraph;
 use algorithms::{
-    algorithms::graph::kruskal::kruskal, data_structures::graph::edge_list::Graph as EdgeGraph,
+    algorithms::graph::kruskal::kruskal, data_structures::graph::edge_list::EdgeGraph,
 };
-use algorithms::{
-    algorithms::graph::prim::prim, data_structures::graph::adjacency_list::Graph as AdjGraph,
-};
+use algorithms::{algorithms::graph::prim::prim, data_structures::graph::adjacency_list::AdjGraph};
 
 fn main() {
     {

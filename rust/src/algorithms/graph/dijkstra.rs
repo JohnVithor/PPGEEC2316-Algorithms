@@ -1,33 +1,13 @@
 use std::collections::BinaryHeap;
 use std::collections::HashMap;
 
-#[derive(Eq, PartialEq, Debug)]
-struct Node {
-    id: usize,
-    distance: usize,
-}
+use crate::data_structures::graph::Graph;
 
-impl Ord for Node {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        other.distance.cmp(&self.distance)
-    }
-}
-
-impl PartialOrd for Node {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-pub fn dijkstra(
-    graph: &HashMap<usize, Vec<(usize, usize)>>,
-    start: usize,
-    end: usize,
-) -> Option<usize> {
+pub fn dijkstra<T: Clone>(graph: &impl Graph<T>, start: usize, end: usize) -> Option<usize> {
     let mut distances = HashMap::new();
     let mut heap = BinaryHeap::new();
 
-    for node in graph.keys() {
+    for node in graph.nodes() {
         distances.insert(node, usize::MAX);
     }
 

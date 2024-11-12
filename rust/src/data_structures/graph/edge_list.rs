@@ -1,31 +1,18 @@
-use super::{UndirectedGraph, WeightedEdge};
+use super::{Graph, UndirectedGraph, WeightedEdge};
 
 #[derive(Debug, Default)]
-pub struct Graph<T> {
+pub struct EdgeGraph<T> {
     edges: Vec<WeightedEdge<T>>,
     nodes: Vec<T>,
 }
 
-impl<T: Default> Graph<T> {
+impl<T: Default> EdgeGraph<T> {
     pub fn new() -> Self {
-        Graph::default()
+        EdgeGraph::default()
     }
 }
 
-impl<T: Clone + Default + Eq + PartialEq> UndirectedGraph<T> for Graph<T> {
-    fn add_edge(&mut self, source: T, target: T, weight: usize) {
-        self.edges.push(WeightedEdge {
-            source: source.clone(),
-            target: target.clone(),
-            weight,
-        });
-        self.edges.push(WeightedEdge {
-            source: target,
-            target: source,
-            weight,
-        });
-    }
-
+impl<T: Clone + Default + Eq + PartialEq> Graph<T> for EdgeGraph<T> {
     fn nodes(&self) -> Vec<&T> {
         self.nodes.iter().collect()
     }
@@ -38,5 +25,20 @@ impl<T: Clone + Default + Eq + PartialEq> UndirectedGraph<T> for Graph<T> {
     }
     fn size(&self) -> usize {
         self.nodes.len()
+    }
+}
+
+impl<T: Clone + Default + Eq + PartialEq> UndirectedGraph<T> for EdgeGraph<T> {
+    fn add_edge(&mut self, source: T, target: T, weight: usize) {
+        self.edges.push(WeightedEdge {
+            source: source.clone(),
+            target: target.clone(),
+            weight,
+        });
+        self.edges.push(WeightedEdge {
+            source: target,
+            target: source,
+            weight,
+        });
     }
 }
