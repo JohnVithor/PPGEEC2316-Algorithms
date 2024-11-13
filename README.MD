@@ -60,4 +60,4 @@
 
 2. Mostre experimentalmente que a taxa de competitividade do algoritmo de uso menos recente tem taxa de competitividade independente do tamanho da entrada para o mecanismo de memória cache.
 
-3. Compare o desempenho do algoritmo de marcação aleatória com o algoritmo de uso menos recente para qualquer um dos programas que já implementou na disciplina. Dica: extraia o traço de memória do seu programa e use-o como entrada para a sua comparação1. 
+3. Compare o desempenho do algoritmo de marcação aleatória com o algoritmo de uso menos recente para qualquer um dos programas que já implementou na disciplina. Dica: extraia o traço de memória do seu programa e use-o como entrada para a sua comparação. 

@@ -32,7 +32,7 @@ fig = sns.relplot(
 sns.move_legend(fig, "upper right")
 
 plt.tight_layout()
-plt.savefig("results1.png")
+plt.savefig("total_time_linear.png")
 
 fig = sns.relplot(
     data=df_total,
@@ -52,7 +52,7 @@ fig.set(xscale="log")
 fig.set(yscale="log")
 
 plt.tight_layout()
-plt.savefig("results2.png")
+plt.savefig("total_time_log.png")
 
 #
 fig = sns.relplot(
@@ -70,7 +70,7 @@ fig = sns.relplot(
 sns.move_legend(fig, "upper right")
 
 plt.tight_layout()
-plt.savefig("results3.png")
+plt.savefig("insertion_linear.png")
 
 fig = sns.relplot(
     data=df_insert,
@@ -90,7 +90,7 @@ fig.set(xscale="log")
 fig.set(yscale="log")
 
 plt.tight_layout()
-plt.savefig("results4.png")
+plt.savefig("insertion_log.png")
 
 
 #
@@ -112,7 +112,7 @@ fig = sns.relplot(
 sns.move_legend(fig, "upper right")
 
 plt.tight_layout()
-plt.savefig("results5.png")
+plt.savefig("search_delete_linear.png")
 
 fig = sns.relplot(
     data=df_ops,
@@ -134,4 +134,4 @@ fig.set(xscale="log")
 fig.set(yscale="log")
 
 plt.tight_layout()
-plt.savefig("results6.png")
+plt.savefig("search_delete_log.png")

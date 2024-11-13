@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Create or clear the results.csv file
-echo "run,size,struct,total,insert,remove_first,remove_last,remove_rand,search_first,search_last,search_rand" > results.csv
+echo "run,size,mod,hash,insert,search_existing,delete,search_missing" > results.csv
 
 # Set the problems sizes
 for m in 1 1.5 2; do
