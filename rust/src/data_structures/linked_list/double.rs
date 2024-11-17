@@ -106,7 +106,7 @@ impl<T> LinkedList<T> {
         }
     }
 
-    pub fn pop_back(mut self) {
+    pub fn pop_back(&mut self) {
         if let Some(mut last) = self.back {
             unsafe {
                 let last = last.as_mut();

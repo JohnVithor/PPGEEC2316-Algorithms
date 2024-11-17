@@ -66,7 +66,7 @@ fn eval_hashmap_chain(
     let insertion_start = Instant::now();
     for _ in 0..tests {
         let i = fastrand::usize(0..ids.len());
-        hashmap.insert(ids[i].clone(), ids[i].clone());
+        hashmap.insert(ids[i].clone(), ids[i].clone()).unwrap();
         inserted.push(ids.swap_remove(i));
     }
     let insertion_duration = insertion_start.elapsed();
@@ -112,7 +112,7 @@ fn eval_hashmap_open(
     let insertion_start = Instant::now();
     for _ in 0..tests {
         let i = fastrand::usize(0..ids.len());
-        hashmap.insert(ids[i].clone(), ids[i].clone());
+        hashmap.insert(ids[i].clone(), ids[i].clone()).unwrap();
         inserted.push(ids.swap_remove(i));
     }
     let insertion_duration = insertion_start.elapsed();

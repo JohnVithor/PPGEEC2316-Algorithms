@@ -1,4 +1,4 @@
-use super::{Graph, UndirectedGraph, WeightedEdge};
+use super::{DirectedGraph, Graph, UndirectedGraph, WeightedEdge};
 
 #[derive(Debug, Default)]
 pub struct EdgeGraph<T> {
@@ -36,9 +36,31 @@ impl<T: Clone + Default + Eq + PartialEq> UndirectedGraph<T> for EdgeGraph<T> {
             weight,
         });
         self.edges.push(WeightedEdge {
-            source: target,
-            target: source,
+            source: target.clone(),
+            target: source.clone(),
             weight,
         });
+        if self.nodes.contains(&source) {
+            self.nodes.push(source);
+        }
+        if !self.nodes.contains(&target) {
+            self.nodes.push(target);
+        }
+    }
+}
+
+impl<T: Clone + Default + Eq + PartialEq> DirectedGraph<T> for EdgeGraph<T> {
+    fn add_edge(&mut self, source: T, target: T, weight: usize) {
+        self.edges.push(WeightedEdge {
+            source: source.clone(),
+            target: target.clone(),
+            weight,
+        });
+        if self.nodes.contains(&source) {
+            self.nodes.push(source);
+        }
+        if !self.nodes.contains(&target) {
+            self.nodes.push(target);
+        }
     }
 }

@@ -1,9 +1,32 @@
+use crate::data_structures::graph::Graph;
 use std::collections::BinaryHeap;
 use std::collections::HashMap;
+use std::fmt::Debug;
+use std::hash::Hash;
 
-use crate::data_structures::graph::Graph;
+#[derive(Eq, PartialEq, Debug)]
+struct Node<T> {
+    id: T,
+    distance: usize,
+}
 
-pub fn dijkstra<T: Clone>(graph: &impl Graph<T>, start: usize, end: usize) -> Option<usize> {
+impl<T: Eq> Ord for Node<T> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        other.distance.cmp(&self.distance)
+    }
+}
+
+impl<T: Eq> PartialOrd for Node<T> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+pub fn dijkstra<T: Clone + Eq + Hash + Debug>(
+    graph: &impl Graph<T>,
+    start: &T,
+    end: &T,
+) -> Option<usize> {
     let mut distances = HashMap::new();
     let mut heap = BinaryHeap::new();
 
@@ -11,7 +34,7 @@ pub fn dijkstra<T: Clone>(graph: &impl Graph<T>, start: usize, end: usize) -> Op
         distances.insert(node, usize::MAX);
     }
 
-    *distances.get_mut(&start).unwrap() = 0;
+    *distances.get_mut(start).unwrap() = 0;
     heap.push(Node {
         id: start,
         distance: 0,
@@ -26,7 +49,10 @@ pub fn dijkstra<T: Clone>(graph: &impl Graph<T>, start: usize, end: usize) -> Op
             continue;
         }
 
-        for &(neighbor, weight) in graph.get(&id).unwrap() {
+        for neigh in graph.neighbors(id) {
+            let neighbor = &neigh.target;
+            let weight = neigh.weight;
+
             let new_distance = distance + weight;
             if new_distance < *distances.get(&neighbor).unwrap() {
                 *distances.get_mut(&neighbor).unwrap() = new_distance;
@@ -39,29 +65,4 @@ pub fn dijkstra<T: Clone>(graph: &impl Graph<T>, start: usize, end: usize) -> Op
     }
 
     None
-}
-
-fn main() {
-    let mut graph = HashMap::new();
-    graph.insert(0, vec![(1, 4), (7, 8)]);
-    graph.insert(1, vec![(0, 4), (2, 8), (7, 11)]);
-    graph.insert(2, vec![(1, 8), (3, 7), (5, 4), (8, 2)]);
-    graph.insert(3, vec![(2, 7), (4, 9), (5, 14)]);
-    graph.insert(4, vec![(3, 9), (5, 10)]);
-    graph.insert(5, vec![(2, 4), (3, 14), (4, 10), (6, 2)]);
-    graph.insert(6, vec![(5, 2), (7, 1), (8, 6)]);
-    graph.insert(7, vec![(0, 8), (1, 11), (6, 1), (8, 7)]);
-    graph.insert(8, vec![(2, 2), (6, 6), (7, 7)]);
-
-    let start = 0;
-    let end = 8;
-
-    if let Some(distance) = dijkstra(&graph, start, end) {
-        println!(
-            "Shortest distance from {} to {} is {}",
-            start, end, distance
-        );
-    } else {
-        println!("No path found from {} to {}", start, end);
-    }
 }
