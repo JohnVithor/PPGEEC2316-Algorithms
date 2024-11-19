@@ -1,3 +1,6 @@
+use std::fmt::Debug;
+
+#[derive(Debug)]
 pub struct BinaryHeap<T: Eq, K: PartialOrd> {
     pub data: Vec<(K, T)>,
 }
@@ -22,7 +25,7 @@ impl<T: Eq, K: PartialOrd> BinaryHeap<T, K> {
     }
 
     fn parent(index: usize) -> usize {
-        (index) / 2
+        (index.saturating_sub(1)) / 2
     }
 
     fn left(index: usize) -> usize {
@@ -74,7 +77,7 @@ impl<T: Eq, K: PartialOrd> BinaryHeap<T, K> {
         let index = self.data.iter().position(|x| &x.1 == value).unwrap();
         self.data[index].0 = key;
         let mut i = index;
-        while i > 0 && self.data[Self::parent(i)].0 < self.data[i].0 {
+        while i > 0 && self.data[Self::parent(i)].0 > self.data[i].0 {
             self.data.swap(Self::parent(i), i);
             i = Self::parent(i);
         }
@@ -87,5 +90,110 @@ impl<T: Eq, K: PartialOrd> BinaryHeap<T, K> {
             self.data.swap(Self::parent(i), i);
             i = Self::parent(i);
         }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::data_structures::binary_heap::binary_heap_explicit_key::BinaryHeap;
+
+    #[test]
+    fn test_create() {
+        let data = vec![1, 2, 3];
+        let keys = vec![3, 2, 1];
+        let heap = BinaryHeap::create(data, keys);
+        assert_eq!(heap.data, vec![(1, 3), (2, 2), (3, 1)]);
+    }
+
+    #[test]
+    fn test_new() {
+        let data = vec![(3, 1), (2, 2), (1, 3)];
+        let heap = BinaryHeap::new(data);
+        assert_eq!(heap.data, vec![(1, 3), (2, 2), (3, 1)]);
+    }
+
+    #[test]
+    fn test_top() {
+        let data = vec![(3, 1), (2, 2), (1, 3)];
+        let heap = BinaryHeap::new(data);
+        assert_eq!(heap.top(), Some(&3));
+    }
+
+    #[test]
+    fn test_top_mut() {
+        let data = vec![(3, 1), (2, 2), (1, 3)];
+        let mut heap = BinaryHeap::new(data);
+        if let Some(top) = heap.top_mut() {
+            *top = 4;
+        }
+        assert_eq!(heap.top(), Some(&4));
+    }
+
+    #[test]
+    fn test_pop() {
+        let data = vec![(3, 1), (2, 2), (1, 3)];
+        let mut heap = BinaryHeap::new(data);
+        assert_eq!(heap.pop(), Some(3));
+        assert_eq!(heap.data, vec![(2, 2), (3, 1)]);
+    }
+
+    #[test]
+    fn test_increase_key() {
+        let data = vec![(3, 1), (2, 2), (1, 3)];
+        let mut heap = BinaryHeap::new(data);
+        heap.increase_key(&2, 4);
+        assert_eq!(heap.data, vec![(1, 3), (4, 2), (3, 1)]);
+    }
+
+    #[test]
+    fn test_insert() {
+        let data = vec![(3, 1), (2, 2), (1, 3)];
+        let mut heap = BinaryHeap::new(data);
+        heap.insert(4, 0);
+        assert_eq!(heap.data, vec![(0, 4), (1, 3), (3, 1), (2, 2)]);
+    }
+
+    #[test]
+    fn test_inserts_ord() {
+        let data = vec![];
+        let mut heap = BinaryHeap::new(data);
+        heap.insert(0, 0);
+        heap.insert(1, 1);
+        heap.insert(2, 2);
+        heap.insert(3, 3);
+        heap.insert(4, 4);
+        assert_eq!(heap.data, vec![(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]);
+    }
+
+    #[test]
+    fn test_inserts_rev() {
+        let data = vec![];
+        let mut heap = BinaryHeap::new(data);
+        heap.insert(4, 4);
+        heap.insert(3, 3);
+        heap.insert(2, 2);
+        heap.insert(1, 1);
+        heap.insert(0, 0);
+        assert_eq!(heap.data, vec![(0, 0), (1, 1), (3, 3), (4, 4), (2, 2)]);
+    }
+
+    #[test]
+    fn test_inserts_rev2() {
+        let data = vec![];
+        let mut heap = BinaryHeap::new(data);
+        heap.insert(3, 3);
+        assert_eq!(heap.data, vec![(3, 3)]);
+        heap.insert(1, 1);
+        assert_eq!(heap.data, vec![(1, 1), (3, 3)]);
+        heap.insert(2, 2);
+        assert_eq!(heap.data, vec![(1, 1), (3, 3), (2, 2)]);
+        heap.insert(4, 4);
+        assert_eq!(heap.data, vec![(1, 1), (3, 3), (2, 2), (4, 4)]);
+        heap.insert(0, 0);
+        assert_eq!(heap.data, vec![(0, 0), (1, 1), (2, 2), (4, 4), (3, 3)]);
     }
 }

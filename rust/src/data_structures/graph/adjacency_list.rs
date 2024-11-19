@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use super::{DirectedGraph, Graph, UndirectedGraph, WeightedEdge};
 
 #[derive(Debug, Default)]
@@ -39,8 +41,26 @@ impl<T: PartialEq + Default + Clone> Graph<T> for AdjGraph<T> {
 
 impl<T: PartialEq + Default + Clone> UndirectedGraph<T> for AdjGraph<T> {
     fn add_edge(&mut self, source: T, target: T, weight: usize) {
-        let source_pos = self.nodes.iter().position(|x| *x == source).unwrap();
-        let target_pos = self.nodes.iter().position(|x| *x == target).unwrap();
+        let source_pos = self
+            .nodes
+            .iter()
+            .position(|x| *x == source)
+            .or_else(|| {
+                self.nodes.push(source.clone());
+                self.adjacency.push(Vec::new());
+                Some(self.nodes.len() - 1)
+            })
+            .unwrap();
+        let target_pos = self
+            .nodes
+            .iter()
+            .position(|x| *x == target)
+            .or_else(|| {
+                self.nodes.push(target.clone());
+                self.adjacency.push(Vec::new());
+                Some(self.nodes.len() - 1)
+            })
+            .unwrap();
         self.adjacency[source_pos].push(WeightedEdge {
             source: source.clone(),
             target: target.clone(),
@@ -56,7 +76,20 @@ impl<T: PartialEq + Default + Clone> UndirectedGraph<T> for AdjGraph<T> {
 
 impl<T: PartialEq + Default + Clone> DirectedGraph<T> for AdjGraph<T> {
     fn add_edge(&mut self, source: T, target: T, weight: usize) {
-        let source_pos = self.nodes.iter().position(|x| *x == source).unwrap();
+        if !self.nodes.contains(&target) {
+            self.nodes.push(source.clone());
+            self.adjacency.push(Vec::new());
+        }
+        let source_pos = self
+            .nodes
+            .iter()
+            .position(|x| *x == source)
+            .or_else(|| {
+                self.nodes.push(target.clone());
+                self.adjacency.push(Vec::new());
+                Some(self.nodes.len() - 1)
+            })
+            .unwrap();
         self.adjacency[source_pos].push(WeightedEdge {
             source: source.clone(),
             target: target.clone(),

@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use super::{DirectedGraph, Graph, UndirectedGraph, WeightedEdge};
 
 #[derive(Debug, Default)]
@@ -30,37 +32,37 @@ impl<T: Clone + Default + Eq + PartialEq> Graph<T> for EdgeGraph<T> {
 
 impl<T: Clone + Default + Eq + PartialEq> UndirectedGraph<T> for EdgeGraph<T> {
     fn add_edge(&mut self, source: T, target: T, weight: usize) {
+        if !self.nodes.contains(&source) {
+            self.nodes.push(source.clone());
+        }
+        if !self.nodes.contains(&target) {
+            self.nodes.push(target.clone());
+        }
         self.edges.push(WeightedEdge {
             source: source.clone(),
             target: target.clone(),
             weight,
         });
         self.edges.push(WeightedEdge {
-            source: target.clone(),
-            target: source.clone(),
+            source: target,
+            target: source,
             weight,
         });
-        if self.nodes.contains(&source) {
-            self.nodes.push(source);
-        }
-        if !self.nodes.contains(&target) {
-            self.nodes.push(target);
-        }
     }
 }
 
 impl<T: Clone + Default + Eq + PartialEq> DirectedGraph<T> for EdgeGraph<T> {
     fn add_edge(&mut self, source: T, target: T, weight: usize) {
-        self.edges.push(WeightedEdge {
-            source: source.clone(),
-            target: target.clone(),
-            weight,
-        });
-        if self.nodes.contains(&source) {
-            self.nodes.push(source);
+        if !self.nodes.contains(&source) {
+            self.nodes.push(source.clone());
         }
         if !self.nodes.contains(&target) {
-            self.nodes.push(target);
+            self.nodes.push(target.clone());
         }
+        self.edges.push(WeightedEdge {
+            source,
+            target,
+            weight,
+        });
     }
 }

@@ -1,20 +1,16 @@
+use crate::data_structures::graph::{UndirectedGraph, WeightedEdge};
 use std::cmp::Ordering;
+use std::fmt::Debug;
 
-use crate::data_structures::{
-    binary_heap::binary_heap_explicit_key::BinaryHeap,
-    graph::{UndirectedGraph, WeightedEdge},
-};
-
-pub fn kruskal<T: PartialEq + Clone>(graph: &impl UndirectedGraph<T>) -> Vec<&WeightedEdge<T>> {
-    let mut edges: Vec<&WeightedEdge<T>> = {
-        let mut edges: Vec<&WeightedEdge<T>> = Vec::new();
-        for i in graph.nodes() {
-            for edge in graph.neighbors(i) {
-                edges.push(edge);
-            }
+pub fn kruskal<T: PartialEq + Clone + Debug>(
+    graph: &impl UndirectedGraph<T>,
+) -> Vec<&WeightedEdge<T>> {
+    let mut edges: Vec<&WeightedEdge<T>> = Vec::new();
+    for i in graph.nodes() {
+        for edge in graph.neighbors(i) {
+            edges.push(edge);
         }
-        edges
-    };
+    }
     edges.sort_unstable_by(|a, b| a.weight.cmp(&b.weight));
 
     let mut parent = (0..graph.size()).collect::<Vec<_>>();
@@ -57,27 +53,4 @@ pub fn find(parent: &mut Vec<usize>, x: usize) -> usize {
         parent[x] = find(parent, parent[x]);
     }
     parent[x]
-}
-
-pub fn accidental_kruskal<T: Eq + Clone>(graph: &impl UndirectedGraph<T>) -> Vec<&WeightedEdge<T>> {
-    let mut heap = BinaryHeap::new(vec![]);
-
-    let mut visited = vec![];
-
-    let mut mst: Vec<&WeightedEdge<T>> = Vec::new();
-
-    for i in graph.nodes() {
-        for edge in graph.neighbors(i) {
-            heap.insert(edge, edge.weight);
-        }
-    }
-
-    while let Some(edge) = heap.pop() {
-        if !visited.contains(&&edge.target) || !visited.contains(&&edge.source) {
-            visited.push(&edge.target);
-            visited.push(&edge.source);
-            mst.push(edge);
-        }
-    }
-    mst
 }

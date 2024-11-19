@@ -3,15 +3,26 @@ pub mod edge_list;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WeightedEdge<T> {
-    pub weight: usize,
     pub source: T,
     pub target: T,
+    pub weight: usize,
+}
+
+impl<T: PartialEq> PartialOrd for WeightedEdge<T> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.weight.cmp(&other.weight).reverse())
+    }
+}
+
+impl<T: Eq> Ord for WeightedEdge<T> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.weight.cmp(&other.weight).reverse()
+    }
 }
 
 pub trait DirectedGraph<T: Clone>: Graph<T> {
     fn add_edge(&mut self, source: T, target: T, weight: usize);
-
-    fn random(seed: u64, vertices: Vec<T>, edges: usize, max_weight: usize) -> Self {
+    fn new_random(seed: u64, vertices: Vec<T>, edges: usize, max_weight: usize) -> Self {
         let mut graph = Self::default();
         fastrand::seed(seed);
         for v in 0..vertices.len() {
@@ -30,7 +41,7 @@ pub trait DirectedGraph<T: Clone>: Graph<T> {
         graph
     }
 
-    fn random_connected(seed: u64, vertices: Vec<T>, edges: usize, max_weight: usize) -> Self {
+    fn new_random_connected(seed: u64, vertices: Vec<T>, edges: usize, max_weight: usize) -> Self {
         let mut graph = Self::default();
         fastrand::seed(seed);
         let mut previous = 0;
@@ -54,8 +65,7 @@ pub trait DirectedGraph<T: Clone>: Graph<T> {
 
 pub trait UndirectedGraph<T: Clone>: Graph<T> {
     fn add_edge(&mut self, source: T, target: T, weight: usize);
-
-    fn random(seed: u64, vertices: Vec<T>, edges: usize, max_weight: usize) -> Self {
+    fn new_random(seed: u64, vertices: Vec<T>, edges: usize, max_weight: usize) -> Self {
         let mut graph = Self::default();
         fastrand::seed(seed);
         for v in 0..vertices.len() {
@@ -74,7 +84,7 @@ pub trait UndirectedGraph<T: Clone>: Graph<T> {
         graph
     }
 
-    fn random_connected(seed: u64, vertices: Vec<T>, edges: usize, max_weight: usize) -> Self {
+    fn new_random_connected(seed: u64, vertices: Vec<T>, edges: usize, max_weight: usize) -> Self {
         let mut graph = Self::default();
         fastrand::seed(seed);
         let mut previous = 0;
@@ -102,4 +112,10 @@ pub trait Graph<T: Clone>: Default {
     where
         T: 'a;
     fn size(&self) -> usize;
+}
+
+pub trait RandomGraph<T: Clone>: Graph<T> {
+    fn new_random(seed: u64, vertices: Vec<T>, edges: usize, max_weight: usize) -> Self;
+
+    fn new_random_connected(seed: u64, vertices: Vec<T>, edges: usize, max_weight: usize) -> Self;
 }

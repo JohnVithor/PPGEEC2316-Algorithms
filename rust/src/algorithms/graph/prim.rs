@@ -4,7 +4,7 @@ use crate::data_structures::{
 };
 
 pub fn prim<T: Eq + Clone>(graph: &impl UndirectedGraph<T>) -> Vec<&WeightedEdge<T>> {
-    let mut heap = BinaryHeap::new(vec![]);
+    let mut heap = BinaryHeap::new(Vec::new());
     let mut visited = vec![];
     let mut mst: Vec<&WeightedEdge<T>> = Vec::new();
     for i in graph.nodes() {
@@ -15,7 +15,8 @@ pub fn prim<T: Eq + Clone>(graph: &impl UndirectedGraph<T>) -> Vec<&WeightedEdge
         for edge in graph.neighbors(i) {
             heap.insert(edge, edge.weight);
         }
-        while let Some(edge) = heap.pop() {
+        while mst.len() < graph.size() - 1 && !heap.is_empty() {
+            let edge = heap.pop().unwrap();
             if visited.contains(&&edge.target) {
                 for e in &mut mst {
                     if edge.weight < e.weight
