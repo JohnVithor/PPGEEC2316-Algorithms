@@ -17,7 +17,6 @@ pub fn kruskal<T: PartialEq + Clone + Debug>(
     let mut rank = vec![0; graph.size()];
 
     let mut mst = Vec::new();
-
     for edge in edges.into_iter() {
         let source = graph
             .nodes()
@@ -44,7 +43,6 @@ pub fn kruskal<T: PartialEq + Clone + Debug>(
             mst.push(edge);
         }
     }
-
     mst
 }
 

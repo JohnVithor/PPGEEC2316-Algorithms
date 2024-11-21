@@ -75,7 +75,7 @@ pub trait UndirectedGraph<T: Clone>: Graph<T> {
                 fastrand::usize(0..max_weight),
             );
         }
-        for _ in 0..(edges - vertices.len()) {
+        for _ in 0..(edges - vertices.len()).min(0) {
             let source = vertices[fastrand::usize(0..vertices.len())].clone();
             let target = vertices[fastrand::usize(0..vertices.len())].clone();
             let weight = fastrand::usize(1..max_weight);
@@ -96,7 +96,8 @@ pub trait UndirectedGraph<T: Clone>: Graph<T> {
             );
             previous = v;
         }
-        for _ in 0..(edges - vertices.len()) {
+
+        for _ in 0..(edges - vertices.len()).min(0) {
             let source = vertices[fastrand::usize(0..vertices.len())].clone();
             let target = vertices[fastrand::usize(0..vertices.len())].clone();
             let weight = fastrand::usize(1..max_weight);
