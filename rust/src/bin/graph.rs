@@ -1,4 +1,4 @@
-use algorithms::data_structures::graph::{Graph, UndirectedGraph};
+use algorithms::data_structures::graph::UndirectedGraph;
 use algorithms::{
     algorithms::graph::kruskal::kruskal, data_structures::graph::edge_list::EdgeGraph,
 };

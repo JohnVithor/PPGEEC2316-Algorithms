@@ -22,16 +22,18 @@ impl<T: Eq> PartialOrd for Node<T> {
     }
 }
 
-pub fn dijkstra<T: Clone + Eq + Hash + Debug>(
-    graph: &impl Graph<T>,
-    start: &T,
-    end: &T,
-) -> Option<usize> {
+pub fn dijkstra<'a, T: Clone + Eq + Hash + Debug>(
+    graph: &'a impl Graph<T>,
+    start: &'a T,
+    end: &'a T,
+) -> Option<(usize, Vec<&'a T>)> {
     let mut distances = HashMap::new();
+    let mut parents: HashMap<&T, Option<&T>> = HashMap::new();
     let mut heap = BinaryHeap::new();
 
     for node in graph.nodes() {
         distances.insert(node, usize::MAX);
+        parents.insert(node, None);
     }
 
     *distances.get_mut(start).unwrap() = 0;
@@ -42,7 +44,17 @@ pub fn dijkstra<T: Clone + Eq + Hash + Debug>(
 
     while let Some(Node { id, distance }) = heap.pop() {
         if id == end {
-            return Some(distance);
+            println!("{:?}", distances);
+            println!("{:?}", parents);
+            let mut path = Vec::new();
+            let mut current = end;
+            while let Some(parent) = parents.get(current).unwrap() {
+                path.push(current);
+                current = parent;
+            }
+            path.push(start);
+            path.reverse();
+            return Some((distance, path));
         }
 
         if distance > *distances.get(&id).unwrap() {
@@ -56,6 +68,7 @@ pub fn dijkstra<T: Clone + Eq + Hash + Debug>(
             let new_distance = distance + weight;
             if new_distance < *distances.get(&neighbor).unwrap() {
                 *distances.get_mut(&neighbor).unwrap() = new_distance;
+                *parents.get_mut(&neighbor).unwrap() = Some(id);
                 heap.push(Node {
                     id: neighbor,
                     distance: new_distance,

@@ -37,10 +37,10 @@ fn main() {
     let start = 0;
     let end = 8;
 
-    if let Some(distance) = dijkstra(&graph, &start, &end) {
+    if let Some((distance, path)) = dijkstra(&graph, &start, &end) {
         println!(
-            "Shortest distance from {} to {} is {}",
-            start, end, distance
+            "Shortest distance from {} to {} is {} with path {:?}",
+            start, end, distance, path
         );
     } else {
         println!("No path found from {} to {}", start, end);
