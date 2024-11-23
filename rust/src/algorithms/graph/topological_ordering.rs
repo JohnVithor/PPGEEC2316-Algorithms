@@ -1,6 +1,6 @@
-use crate::data_structures::graph::UndirectedGraph;
+use crate::data_structures::graph::DirectedGraph;
 
-pub fn topological_sort<T: PartialEq + Clone>(graph: &impl UndirectedGraph<T>) -> Vec<&T> {
+pub fn topological_sort<T: PartialEq + Clone>(graph: &impl DirectedGraph<T>) -> Vec<&T> {
     let mut visited = Vec::with_capacity(graph.size());
     let mut result = Vec::with_capacity(graph.size());
 
@@ -15,7 +15,7 @@ pub fn topological_sort<T: PartialEq + Clone>(graph: &impl UndirectedGraph<T>) -
 
 fn dfs<'a, T: PartialEq + Clone>(
     node: &'a T,
-    graph: &'a impl UndirectedGraph<T>,
+    graph: &'a impl DirectedGraph<T>,
     visited: &mut Vec<&'a T>,
     result: &mut Vec<&'a T>,
 ) {

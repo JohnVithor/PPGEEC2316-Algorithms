@@ -1,54 +1,55 @@
+use crate::data_structures::binary_heap::binary_heap_explicit_key::BinaryHeap;
 use crate::data_structures::graph::{UndirectedGraph, WeightedEdge};
 use std::cmp::Ordering;
+use std::collections::HashMap;
 use std::fmt::Debug;
+use std::hash::Hash;
 
-pub fn kruskal<T: PartialEq + Clone + Debug>(
+pub fn kruskal<T: Eq + Clone + Debug + Hash + Ord>(
     graph: &impl UndirectedGraph<T>,
 ) -> Vec<&WeightedEdge<T>> {
-    let mut edges: Vec<&WeightedEdge<T>> = Vec::new();
+    let mut edges = Vec::new();
     for i in graph.nodes() {
         for edge in graph.neighbors(i) {
-            edges.push(edge);
+            edges.push((edge.weight, edge));
         }
     }
-    edges.sort_unstable_by(|a, b| a.weight.cmp(&b.weight));
+    let mut edges = BinaryHeap::new(edges);
 
-    let mut parent = (0..graph.size()).collect::<Vec<_>>();
-    let mut rank = vec![0; graph.size()];
-
+    let mut parent: HashMap<&T, &T> = HashMap::new();
+    for node in graph.nodes() {
+        parent.insert(node, node);
+    }
     let mut mst = Vec::new();
-    for edge in edges.into_iter() {
-        let source = graph
-            .nodes()
-            .iter()
-            .position(|x| *x == &edge.source)
-            .unwrap();
-        let target = graph
-            .nodes()
-            .iter()
-            .position(|x| *x == &edge.target)
-            .unwrap();
-        let root_source = find(&mut parent, source);
-        let root_target = find(&mut parent, target);
+    while mst.len() < graph.size() - 1 && !edges.is_empty() {
+        let edge: &WeightedEdge<T> = edges.pop().unwrap();
+        let root_source = {
+            let mut x = &edge.source;
+            let mut p = parent[x];
+            while p != x {
+                x = p;
+                p = parent[x];
+            }
+            p
+        };
+        let root_target = {
+            let mut x = &edge.target;
+            let mut p = parent[x];
+            while p != x {
+                x = p;
+                p = parent[x];
+            }
+            p
+        };
 
         if root_source != root_target {
-            match root_source.cmp(&root_target) {
-                Ordering::Less => parent[root_target] = root_source,
-                Ordering::Greater => parent[root_source] = root_target,
-                Ordering::Equal => {
-                    parent[root_target] = root_source;
-                    rank[root_source] += 1;
-                }
-            }
+            match root_source.cmp(root_target) {
+                Ordering::Less => parent.insert(root_target, root_source),
+                Ordering::Greater => parent.insert(root_source, root_target),
+                Ordering::Equal => parent.insert(root_target, root_source),
+            };
             mst.push(edge);
         }
     }
     mst
-}
-
-pub fn find(parent: &mut Vec<usize>, x: usize) -> usize {
-    if parent[x] != x {
-        parent[x] = find(parent, parent[x]);
-    }
-    parent[x]
 }

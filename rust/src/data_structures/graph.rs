@@ -1,7 +1,7 @@
 pub mod adjacency_list;
 pub mod edge_list;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct WeightedEdge<T> {
     pub source: T,
     pub target: T,
