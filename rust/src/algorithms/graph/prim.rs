@@ -1,48 +1,40 @@
-use std::{collections::HashSet, hash::Hash};
-
 use crate::data_structures::{
     binary_heap::binary_heap_explicit_key::BinaryHeap,
     graph::{UndirectedGraph, WeightedEdge},
 };
 
-pub fn prim<T: Eq + Clone + Hash>(graph: &impl UndirectedGraph<T>) -> Vec<&WeightedEdge<T>> {
+pub fn prim<T: Eq + Clone>(graph: &impl UndirectedGraph<T>) -> Vec<WeightedEdge<T>> {
     let mut heap = BinaryHeap::new(Vec::new());
-    let mut visited = HashSet::new();
-    let mut mst: Vec<&WeightedEdge<T>> = Vec::new();
-    for i in graph.nodes() {
-        if visited.contains(i) {
-            continue;
-        }
-        visited.insert(i);
-        for edge in graph.neighbors(i) {
-            heap.insert(edge, edge.weight);
-        }
-        while mst.len() < graph.size() - 1 && !heap.is_empty() {
-            let edge = heap.pop().unwrap();
-            if visited.contains(&&edge.target) {
-                for e in &mut mst {
-                    if edge.weight < e.weight
-                        && (e.source == edge.source
-                            || e.target == edge.target
-                            || e.source == edge.target
-                            || e.target == edge.source)
-                    {
-                        *e = edge;
-                        break;
-                    }
-                }
-                continue;
-            }
-            visited.insert(&edge.target);
-            let target = &edge.target;
-            mst.push(edge);
-            for neigh in graph.neighbors(target) {
-                if visited.contains(&&neigh.target) {
-                    continue;
-                }
-                heap.insert(neigh, neigh.weight);
+    let mut mst: Vec<WeightedEdge<T>> = Vec::new();
+    let nodes = graph.nodes();
+    let mut iter = nodes.into_iter();
+    let mut current_node = iter.next().unwrap();
+    for node in iter {
+        heap.insert(node, usize::MAX);
+    }
+    for u in graph.neighbors(current_node) {
+        if let Some(cost) = heap.get_priority(&u.target) {
+            if *current_node != u.target && u.weight < *cost {
+                heap.update_key(&u.target, u.weight);
             }
         }
+    }
+    while !heap.is_empty() {
+        let (node, cost) = heap.pop().unwrap();
+        mst.push(WeightedEdge {
+            source: current_node.clone(),
+            target: node.clone(),
+            weight: cost,
+        });
+        for u in graph.neighbors(node) {
+            if let Some(cost) = heap.get_priority(&u.target) {
+                let new_cost = u.weight;
+                if new_cost < *cost {
+                    heap.update_key(&u.target, new_cost);
+                }
+            }
+        }
+        current_node = node;
     }
     mst
 }

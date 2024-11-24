@@ -63,18 +63,19 @@ impl<T: Eq, K: PartialOrd> BinaryHeap<T, K> {
         Some(&mut self.data.first_mut()?.1)
     }
 
-    pub fn pop(&mut self) -> Option<T> {
+    pub fn pop(&mut self) -> Option<(T, K)> {
         if self.data.is_empty() {
             return None;
         }
 
-        let max = self.data.swap_remove(0).1;
+        let item = self.data.swap_remove(0);
+        let max = item.1;
         self.heapify(0);
-        Some(max)
+        Some((max, item.0))
     }
 
-    pub fn increase_key(&mut self, value: &T, key: K) {
-        let index = self.data.iter().position(|x| &x.1 == value).unwrap();
+    pub fn update_key(&mut self, value: T, key: K) {
+        let index = self.data.iter().position(|x| x.1 == value).unwrap();
         self.data[index].0 = key;
         let mut i = index;
         while i > 0 && self.data[Self::parent(i)].0 > self.data[i].0 {
@@ -94,6 +95,15 @@ impl<T: Eq, K: PartialOrd> BinaryHeap<T, K> {
 
     pub fn is_empty(&self) -> bool {
         self.data.is_empty()
+    }
+
+    pub fn get_priority(&self, value: T) -> Option<&K> {
+        for (key, val) in self.data.iter() {
+            if *val == value {
+                return Some(key);
+            }
+        }
+        None
     }
 }
 
@@ -137,7 +147,7 @@ mod tests {
     fn test_pop() {
         let data = vec![(3, 1), (2, 2), (1, 3)];
         let mut heap = BinaryHeap::new(data);
-        assert_eq!(heap.pop(), Some(3));
+        assert_eq!(heap.pop(), Some((3, 1)));
         assert_eq!(heap.data, vec![(2, 2), (3, 1)]);
     }
 
@@ -145,7 +155,7 @@ mod tests {
     fn test_increase_key() {
         let data = vec![(3, 1), (2, 2), (1, 3)];
         let mut heap = BinaryHeap::new(data);
-        heap.increase_key(&2, 4);
+        heap.update_key(2, 4);
         assert_eq!(heap.data, vec![(1, 3), (4, 2), (3, 1)]);
     }
 

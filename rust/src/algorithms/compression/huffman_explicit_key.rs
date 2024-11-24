@@ -46,8 +46,8 @@ fn build_huffman_tree(freq_map: [usize; 256]) -> Option<Node> {
     );
 
     while heap.data.len() > 1 {
-        let left = heap.pop()?;
-        let right = heap.pop()?;
+        let (left, _) = heap.pop()?;
+        let (right, _) = heap.pop()?;
         let freq = left.freq + right.freq;
         let mut parent = Node::new(freq, None);
         parent.left = Some(Box::new(left));
@@ -56,7 +56,7 @@ fn build_huffman_tree(freq_map: [usize; 256]) -> Option<Node> {
         heap.insert(parent, freq);
     }
 
-    heap.pop()
+    heap.pop()?.0.into()
 }
 
 fn build_encoding_map(root: &Node) -> [Vec<bool>; 256] {

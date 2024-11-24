@@ -3,6 +3,7 @@ use algorithms::{
     algorithms::graph::kruskal::kruskal, data_structures::graph::edge_list::EdgeGraph,
 };
 use algorithms::{algorithms::graph::prim::prim, data_structures::graph::adjacency_list::AdjGraph};
+use std::fmt::Debug;
 use std::hash::Hash;
 
 fn new_random_connected<T: Clone>(
@@ -46,19 +47,27 @@ fn new_full_connected<T: Clone>(
     }
 }
 
-fn eval<T: Eq + Clone + Hash + Ord + Clone>(
+type EvalResult<'a, T> = (
+    (Vec<&'a WeightedEdge<T>>, Vec<WeightedEdge<T>>),
+    (u128, u128, usize, usize),
+);
+
+fn eval<T: Eq + Clone + Hash + Ord + Clone + Debug>(
     graph: &impl UndirectedGraph<T>,
-) -> (u128, u128, usize, usize) {
+) -> EvalResult<T> {
     let start = std::time::Instant::now();
-    let mst = kruskal(graph);
+    let mst_k = kruskal(graph);
     let kruskal_edge = start.elapsed().as_nanos();
-    let kruskal_edge_cost = mst.iter().map(|x| x.weight).sum::<usize>();
+    let kruskal_edge_cost = mst_k.iter().map(|x| x.weight).sum::<usize>();
 
     let start = std::time::Instant::now();
-    let mst = prim(graph);
+    let mst_p: Vec<WeightedEdge<T>> = prim(graph);
     let prim_edge = start.elapsed().as_nanos();
-    let prim_edge_cost = mst.iter().map(|x| x.weight).sum::<usize>();
-    (kruskal_edge, prim_edge, kruskal_edge_cost, prim_edge_cost)
+    let prim_edge_cost = mst_p.iter().map(|x| x.weight).sum::<usize>();
+    (
+        (mst_k, mst_p),
+        (kruskal_edge, prim_edge, kruskal_edge_cost, prim_edge_cost),
+    )
 }
 
 fn save_result(nodes: usize, edges: usize, tuple: (u128, u128, usize, usize), modifier: &str) {
@@ -99,9 +108,9 @@ fn main() {
     let mut edge_graph = EdgeGraph::default();
     new_random_connected(&mut edge_graph, seed, (0..nodes).collect(), edges, 100);
 
-    let r = eval(&adj_graph);
+    let (_msts, r) = eval(&adj_graph);
     save_result(nodes, edges, r, "rand adjacency");
-    let r = eval(&edge_graph);
+    let (_msts, r) = eval(&edge_graph);
     save_result(nodes, edges, r, "rand edge_list");
 
     let mut adj_graph = AdjGraph::default();
@@ -109,8 +118,8 @@ fn main() {
     let mut edge_graph = EdgeGraph::default();
     new_full_connected(&mut edge_graph, seed, (0..nodes).collect(), 100);
 
-    let r = eval(&adj_graph);
+    let (_msts, r) = eval(&adj_graph);
     save_result(nodes, nodes * nodes, r, "full adjacency");
-    let r = eval(&edge_graph);
+    let (_msts, r) = eval(&edge_graph);
     save_result(nodes, nodes * nodes, r, "full edge_list");
 }

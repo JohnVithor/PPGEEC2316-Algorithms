@@ -21,7 +21,7 @@ pub fn kruskal<T: Eq + Clone + Hash + Ord>(
     }
     let mut mst = Vec::new();
     while mst.len() < graph.size() - 1 && !edges.is_empty() {
-        let edge: &WeightedEdge<T> = edges.pop().unwrap();
+        let (edge, _) = edges.pop().unwrap();
         let root_source = {
             let mut x = &edge.source;
             let mut p = parent[x];
