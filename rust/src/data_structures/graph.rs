@@ -65,46 +65,6 @@ pub trait DirectedGraph<T: Clone>: Graph<T> {
 
 pub trait UndirectedGraph<T: Clone>: Graph<T> {
     fn add_edge(&mut self, source: T, target: T, weight: usize);
-    fn new_random(seed: u64, vertices: Vec<T>, edges: usize, max_weight: usize) -> Self {
-        let mut graph = Self::default();
-        fastrand::seed(seed);
-        for v in 0..vertices.len() {
-            graph.add_edge(
-                vertices[v].clone(),
-                vertices[fastrand::usize(0..vertices.len())].clone(),
-                fastrand::usize(0..max_weight),
-            );
-        }
-        for _ in 0..(edges - vertices.len()).min(0) {
-            let source = vertices[fastrand::usize(0..vertices.len())].clone();
-            let target = vertices[fastrand::usize(0..vertices.len())].clone();
-            let weight = fastrand::usize(1..max_weight);
-            graph.add_edge(source, target, weight);
-        }
-        graph
-    }
-
-    fn new_random_connected(seed: u64, vertices: Vec<T>, edges: usize, max_weight: usize) -> Self {
-        let mut graph = Self::default();
-        fastrand::seed(seed);
-        let mut previous = 0;
-        for v in 1..vertices.len() {
-            graph.add_edge(
-                vertices[previous].clone(),
-                vertices[v].clone(),
-                fastrand::usize(0..max_weight),
-            );
-            previous = v;
-        }
-
-        for _ in 0..(edges - vertices.len()).min(0) {
-            let source = vertices[fastrand::usize(0..vertices.len())].clone();
-            let target = vertices[fastrand::usize(0..vertices.len())].clone();
-            let weight = fastrand::usize(1..max_weight);
-            graph.add_edge(source, target, weight);
-        }
-        graph
-    }
 }
 
 pub trait Graph<T: Clone>: Default {

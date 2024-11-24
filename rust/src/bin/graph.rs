@@ -3,6 +3,71 @@ use algorithms::{
     algorithms::graph::kruskal::kruskal, data_structures::graph::edge_list::EdgeGraph,
 };
 use algorithms::{algorithms::graph::prim::prim, data_structures::graph::adjacency_list::AdjGraph};
+use std::hash::Hash;
+
+fn new_random_connected<T: Clone>(
+    graph: &mut impl UndirectedGraph<T>,
+    seed: u64,
+    vertices: Vec<T>,
+    edges: usize,
+    max_weight: usize,
+) {
+    fastrand::seed(seed);
+    let mut previous = 0;
+    for v in 1..vertices.len() {
+        graph.add_edge(
+            vertices[previous].clone(),
+            vertices[v].clone(),
+            fastrand::usize(0..max_weight),
+        );
+        previous = v;
+    }
+
+    for _ in 0..(edges - vertices.len()).min(0) {
+        let source = vertices[fastrand::usize(0..vertices.len())].clone();
+        let target = vertices[fastrand::usize(0..vertices.len())].clone();
+        let weight = fastrand::usize(1..max_weight);
+        graph.add_edge(source, target, weight);
+    }
+}
+
+fn new_full_connected<T: Clone>(
+    graph: &mut impl UndirectedGraph<T>,
+    seed: u64,
+    vertices: Vec<T>,
+    max_weight: usize,
+) {
+    fastrand::seed(seed);
+    for i in &vertices {
+        for j in &vertices {
+            let weight = fastrand::usize(1..max_weight);
+            graph.add_edge(i.clone(), j.clone(), weight);
+        }
+    }
+}
+
+fn eval<T: Eq + Clone + Hash + Ord + Clone>(
+    graph: &impl UndirectedGraph<T>,
+) -> (u128, u128, usize, usize) {
+    let start = std::time::Instant::now();
+    let mst = kruskal(graph);
+    let kruskal_edge = start.elapsed().as_nanos();
+    let kruskal_edge_cost = mst.iter().map(|x| x.weight).sum::<usize>();
+
+    let start = std::time::Instant::now();
+    let mst = prim(graph);
+    let prim_edge = start.elapsed().as_nanos();
+    let prim_edge_cost = mst.iter().map(|x| x.weight).sum::<usize>();
+    (kruskal_edge, prim_edge, kruskal_edge_cost, prim_edge_cost)
+}
+
+fn save_result(nodes: usize, edges: usize, tuple: (u128, u128, usize, usize), modifier: &str) {
+    let (kruskal, prim, kruskal_cost, prim_cost) = tuple;
+    println!(
+        "{},{},{},{},{},{},{}",
+        nodes, edges, modifier, kruskal, prim, kruskal_cost, prim_cost
+    );
+}
 
 fn _print_nodes(mst: Vec<&WeightedEdge<usize>>) {
     for edge in mst {
@@ -29,28 +94,23 @@ fn main() {
         .parse::<u64>()
         .expect("Invalid seed\ngraph <nodes> <edges> <seed>");
 
-    let adj_graph = AdjGraph::new_random_connected(seed, (0..nodes).collect(), edges, 100);
-    let edge_graph = EdgeGraph::new_random_connected(seed, (0..nodes).collect(), edges, 100);
+    let mut adj_graph = AdjGraph::default();
+    new_random_connected(&mut adj_graph, seed, (0..nodes).collect(), edges, 100);
+    let mut edge_graph = EdgeGraph::default();
+    new_random_connected(&mut edge_graph, seed, (0..nodes).collect(), edges, 100);
 
-    let start = std::time::Instant::now();
-    let mst = kruskal(&edge_graph);
-    let kruskal_edge = start.elapsed().as_nanos();
-    let kruskal_edge_cost = mst.iter().map(|x| x.weight).sum::<usize>();
+    let r = eval(&adj_graph);
+    save_result(nodes, edges, r, "rand adjacency");
+    let r = eval(&edge_graph);
+    save_result(nodes, edges, r, "rand edge_list");
 
-    let start = std::time::Instant::now();
-    let mst = prim(&edge_graph);
-    let prim_edge = start.elapsed().as_nanos();
-    let prim_edge_cost = mst.iter().map(|x| x.weight).sum::<usize>();
+    let mut adj_graph = AdjGraph::default();
+    new_full_connected(&mut adj_graph, seed, (0..nodes).collect(), 100);
+    let mut edge_graph = EdgeGraph::default();
+    new_full_connected(&mut edge_graph, seed, (0..nodes).collect(), 100);
 
-    let start = std::time::Instant::now();
-    let mst = kruskal(&adj_graph);
-    let kruskal_adj = start.elapsed().as_nanos();
-    let kruskal_adj_cost = mst.iter().map(|x| x.weight).sum::<usize>();
-
-    let start = std::time::Instant::now();
-    let mst = prim(&adj_graph);
-    let prim_adj = start.elapsed().as_nanos();
-    let prim_adj_cost = mst.iter().map(|x| x.weight).sum::<usize>();
-
-    println!("{kruskal_edge},{prim_edge},{kruskal_adj},{prim_adj},{kruskal_edge_cost},{prim_edge_cost},{kruskal_adj_cost},{prim_adj_cost}")
+    let r = eval(&adj_graph);
+    save_result(nodes, nodes * nodes, r, "full adjacency");
+    let r = eval(&edge_graph);
+    save_result(nodes, nodes * nodes, r, "full edge_list");
 }

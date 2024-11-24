@@ -2,10 +2,9 @@ use crate::data_structures::binary_heap::binary_heap_explicit_key::BinaryHeap;
 use crate::data_structures::graph::{UndirectedGraph, WeightedEdge};
 use std::cmp::Ordering;
 use std::collections::HashMap;
-use std::fmt::Debug;
 use std::hash::Hash;
 
-pub fn kruskal<T: Eq + Clone + Debug + Hash + Ord>(
+pub fn kruskal<T: Eq + Clone + Hash + Ord>(
     graph: &impl UndirectedGraph<T>,
 ) -> Vec<&WeightedEdge<T>> {
     let mut edges = Vec::new();
