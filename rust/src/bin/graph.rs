@@ -109,9 +109,9 @@ fn main() {
     new_random_connected(&mut edge_graph, seed, (0..nodes).collect(), edges, 100);
 
     let (_msts, r) = eval(&adj_graph);
-    save_result(nodes, edges, r, "rand adjacency");
+    save_result(nodes, edges, r, "rand_adjacency");
     let (_msts, r) = eval(&edge_graph);
-    save_result(nodes, edges, r, "rand edge_list");
+    save_result(nodes, edges, r, "rand_edge_list");
 
     let mut adj_graph = AdjGraph::default();
     new_full_connected(&mut adj_graph, seed, (0..nodes).collect(), 100);
@@ -119,7 +119,7 @@ fn main() {
     new_full_connected(&mut edge_graph, seed, (0..nodes).collect(), 100);
 
     let (_msts, r) = eval(&adj_graph);
-    save_result(nodes, nodes * nodes, r, "full adjacency");
+    save_result(nodes, nodes * nodes, r, "full_adjacency");
     let (_msts, r) = eval(&edge_graph);
-    save_result(nodes, nodes * nodes, r, "full edge_list");
+    save_result(nodes, nodes * nodes, r, "full_edge_list");
 }
