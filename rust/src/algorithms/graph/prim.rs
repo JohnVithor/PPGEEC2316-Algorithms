@@ -6,9 +6,8 @@ use crate::data_structures::{
 pub fn prim<T: Eq + Clone>(graph: &impl UndirectedGraph<T>) -> Vec<WeightedEdge<T>> {
     let mut heap = BinaryHeap::new(Vec::new());
     let mut mst: Vec<WeightedEdge<T>> = Vec::new();
-    let nodes = graph.nodes();
-    let mut iter = nodes.into_iter();
-    let mut current_node = iter.next().unwrap();
+    let mut iter = graph.nodes().into_iter();
+    let current_node = iter.next().unwrap();
     for node in iter {
         heap.insert(node, usize::MAX);
     }
@@ -19,8 +18,8 @@ pub fn prim<T: Eq + Clone>(graph: &impl UndirectedGraph<T>) -> Vec<WeightedEdge<
             }
         }
     }
-    while !heap.is_empty() {
-        let (node, cost) = heap.pop().unwrap();
+    let mut current_node = current_node;
+    while let Some((node, cost)) = heap.pop() {
         mst.push(WeightedEdge {
             source: current_node.clone(),
             target: node.clone(),
@@ -28,9 +27,8 @@ pub fn prim<T: Eq + Clone>(graph: &impl UndirectedGraph<T>) -> Vec<WeightedEdge<
         });
         for u in graph.neighbors(node) {
             if let Some(cost) = heap.get_priority(&u.target) {
-                let new_cost = u.weight;
-                if new_cost < *cost {
-                    heap.update_key(&u.target, new_cost);
+                if u.weight < *cost {
+                    heap.update_key(&u.target, u.weight);
                 }
             }
         }
