@@ -8,7 +8,7 @@ for size in 10 20 30 40 50 60 70 80 90 100 200 300 400 500 600 700 800 900 1000 
     # Run the binary 10 times
     for i in {1..10}; do
       # Capture the output of the binary
-      output=$(taskset -c 2 "../../rust/target/release/graph" $size $size 0)
+      output=$(taskset -c 2 "../../rust/target/release/graph" $size $(($size*2)) 0)
       for line in $output; do
         echo "$i,$line" >> results.csv
       done

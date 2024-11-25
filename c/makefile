@@ -1,7 +1,7 @@
 CC = clang
 CFLAGS = -Wall -O3
 
-all: mkdir ./bin/sort ./bin/sort_ram ./bin/matrix ./bin/min_max ./bin/allocation ./bin/selection ./bin/create_array
+all: mkdir ./bin/sort ./bin/sort_ram ./bin/matrix ./bin/min_max ./bin/allocation ./bin/selection ./bin/create_array ./bin/parallel_merge ./bin/matrix_multiply
 
 debug: CFLAGS = -Wall -O0 -g
 debug: all
@@ -97,7 +97,15 @@ mkdir:
 # Create array
 
 ./bin/create_array: src/runners/create_array.c ./bin/utils.o
-	$(CC) $(CFLAGS) -I./include $^ -o ./bin/create_array
+	$(CC) $(CFLAGS) -I./include $^ -o $@
+
+
+# Parallel
+./bin/parallel_merge: src/parallel/merge_sort.c ./bin/utils.o ./bin/merge_sort.o
+	$(CC) $(CFLAGS) -I./include $^ -o $@ -fopenmp
+
+./bin/matrix_multiply: src/parallel/matrix_multiply.c ./bin/utils.o ./bin/classic.o ./bin/strassen.o
+	$(CC) $(CFLAGS) -I./include $^ -o $@ -fopenmp
 
 clean:
 	rm -f ./bin/*
