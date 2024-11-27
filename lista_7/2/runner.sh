@@ -14,7 +14,7 @@ echo "size,i,classic,classic_parallel,strassen,strassen_parallel,transposed,tran
 for size in 4 8 16 32 64 128 256 512 1024 2048 4096; do
   for i in {1..10}; do
     # Capture the output of the binary
-    output=$(taskset -c 0 "../../c/bin/matrix_multiply" $size 0)
+    output=$("../../c/bin/matrix_multiply" $size 0)
     # Write the binary name, run number, and output to the CSV file
     echo "$size,$i,$output" >> results.csv
   done
