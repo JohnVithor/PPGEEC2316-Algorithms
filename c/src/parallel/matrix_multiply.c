@@ -6,9 +6,12 @@
 #include "utils.h"
 #include "matrix.h"
 
+#define THRESHOLD 128
+
 void matrix_add_parallel(Matrix* a, Matrix* b, Matrix* c) {
-  #pragma omp parallel for
+  #pragma omp parallel for if (a->size > THRESHOLD)
   for (size_t i = 0; i < a->size; ++i) {
+    #pragma omp parallel for if (b->size > THRESHOLD)
     for (size_t j = 0; j < b->size; ++j) {
       matrix_set(c, i, j, matrix_get(a, i, j) + matrix_get(b, i, j));
     }
@@ -16,8 +19,9 @@ void matrix_add_parallel(Matrix* a, Matrix* b, Matrix* c) {
 }
 
 void matrix_subtract_parallel(Matrix* a, Matrix* b, Matrix* c) {
-  #pragma omp parallel for
+  #pragma omp parallel for if (a->size > THRESHOLD)
   for (size_t i = 0; i < a->size; ++i) {
+    #pragma omp parallel for if (b->size > THRESHOLD)
     for (size_t j = 0; j < b->size; ++j) {
       matrix_set(c, i, j, matrix_get(a, i, j) - matrix_get(b, i, j));
     }
@@ -25,8 +29,9 @@ void matrix_subtract_parallel(Matrix* a, Matrix* b, Matrix* c) {
 }
 
 void matrix_multiply_parallel(Matrix* a, Matrix* b, Matrix* c) {
-  #pragma omp parallel for
+  #pragma omp parallel for if (a->size > THRESHOLD)
   for (size_t i = 0; i < a->size; ++i) {
+    #pragma omp parallel for if (a->size > THRESHOLD)
     for (size_t j = 0; j < a->size; ++j) {
       matrix_set(c, i, j, 0);
       for (size_t k = 0; k < a->size; ++k) {
@@ -37,8 +42,9 @@ void matrix_multiply_parallel(Matrix* a, Matrix* b, Matrix* c) {
 }
 
 inline void transpose_parallel(Matrix* m) {
-  #pragma omp parallel for
+  #pragma omp parallel for if (m->size > THRESHOLD)
   for (size_t i = 0; i < m->size; ++i) {
+    #pragma omp parallel for if (m->size > THRESHOLD)
     for (size_t j = i + 1; j < m->size; ++j) {
       T x = matrix_get(m, i, j);
       matrix_set(m, i, j, matrix_get(m, j, i));
@@ -49,8 +55,9 @@ inline void transpose_parallel(Matrix* m) {
 
 void matrix_multiply_transposed_parallel(Matrix* a, Matrix* b, Matrix* c) {
   transpose_parallel(b);
-  #pragma omp parallel for
+  #pragma omp parallel for if (a->size > THRESHOLD)
   for (size_t i = 0; i < a->size; ++i) {
+    #pragma omp parallel for if (a->size > THRESHOLD)
     for (size_t j = 0; j < a->size; ++j) {
       matrix_set(c, i, j, 0);
       for (size_t k = 0; k < a->size; ++k) {
@@ -62,9 +69,10 @@ void matrix_multiply_transposed_parallel(Matrix* a, Matrix* b, Matrix* c) {
 }
 
 
-void matrix_multiply_strassen_internal_parallel(Matrix* a, Matrix* b, Matrix* c, T* buffer) {
-  if (a->size == 1) {
-    matrix_set(c, 0, 0, matrix_get(a, 0, 0) * matrix_get(b, 0, 0));
+void matrix_multiply_strassen_parallel(Matrix* a, Matrix* b, Matrix* c) {
+  if (a->size <= THRESHOLD) {
+    matrix_multiply(a, b, c);
+    // matrix_set(c, 0, 0, matrix_get(a, 0, 0) * matrix_get(b, 0, 0));
     return;
   }
 
@@ -82,42 +90,93 @@ void matrix_multiply_strassen_internal_parallel(Matrix* a, Matrix* b, Matrix* c,
   Matrix b21 = b_split.m21;
   Matrix b22 = b_split.m22;
 
-  Matrix aux1 = matrix_create(buffer, mid);
-  Matrix aux2 = matrix_create(aux1.data + (mid * mid), mid);
-  Matrix p1 = matrix_create(aux2.data + (mid * mid), mid);
-  Matrix p2 = matrix_create(p1.data + (mid * mid), mid);
-  Matrix p3 = matrix_create(p2.data + (mid * mid), mid);
-  Matrix p4 = matrix_create(p3.data + (mid * mid), mid);
-  Matrix p5 = matrix_create(p4.data + (mid * mid), mid);
-  Matrix p6 = matrix_create(p5.data + (mid * mid), mid);
-  Matrix p7 = matrix_create(p6.data + (mid * mid), mid);
-  T* remaining_buffer = p7.data + (mid * mid);
+  T* aux1_data = (T*)safe_malloc(mid * mid * sizeof(T));
+  T* aux2_data = (T*)safe_malloc(mid * mid * sizeof(T));
+  T* p1_data = (T*)safe_malloc(mid * mid * sizeof(T));
+  T* p2_data = (T*)safe_malloc(mid * mid * sizeof(T));
+  T* p3_data = (T*)safe_malloc(mid * mid * sizeof(T));
+  T* p4_data = (T*)safe_malloc(mid * mid * sizeof(T));
+  T* p5_data = (T*)safe_malloc(mid * mid * sizeof(T));
+  T* p6_data = (T*)safe_malloc(mid * mid * sizeof(T));
+  T* p7_data = (T*)safe_malloc(mid * mid * sizeof(T));
+  Matrix aux1 = matrix_create(aux1_data, mid);
+  Matrix aux2 = matrix_create(aux2_data, mid);
+  Matrix p1 = matrix_create(p1_data, mid);
+  Matrix p2 = matrix_create(p2_data, mid);
+  Matrix p3 = matrix_create(p3_data, mid);
+  Matrix p4 = matrix_create(p4_data, mid);
+  Matrix p5 = matrix_create(p5_data, mid);
+  Matrix p6 = matrix_create(p6_data, mid);
+  Matrix p7 = matrix_create(p7_data, mid);
 
-  matrix_add_parallel(&a11, &a22, &aux1);
-  matrix_add_parallel(&b11, &b22, &aux2);
-  matrix_multiply_strassen_internal_parallel(&aux1, &aux2, &p1, remaining_buffer);
+  #pragma omp parallel sections
+  {
+    #pragma omp section
+    matrix_add_parallel(&a11, &a22, &aux1);
+    #pragma omp section
+    matrix_add_parallel(&b11, &b22, &aux2);
+  }
+  matrix_multiply_strassen_parallel(&aux1, &aux2, &p1);
   
-  matrix_add_parallel(&a21, &a22, &aux1);
-  matrix_multiply_strassen_internal_parallel(&aux1, &b11, &p2, remaining_buffer);
+  #pragma omp parallel sections
+  {
+    #pragma omp section
+    {
+      matrix_add_parallel(&a21, &a22, &aux1);
+      matrix_multiply_strassen_parallel(&aux1, &b11, &p2);
+    }
+    #pragma omp section
+    {
+      matrix_subtract_parallel(&b12, &b22, &aux2);
+      matrix_multiply_strassen_parallel(&a11, &aux2, &p3);
+    }
+  }
 
-  matrix_subtract(&b12, &b22, &aux2);
-  matrix_multiply_strassen_internal_parallel(&a11, &aux2, &p3, remaining_buffer);
+  #pragma omp parallel sections
+  {
+    #pragma omp section
+    {
+      matrix_subtract_parallel(&b21, &b11, &aux1);
+      matrix_multiply_strassen_parallel(&a22, &aux1, &p4);
+    }
+    #pragma omp section
+    {
+      matrix_add_parallel(&a11, &a12, &aux2);
+      matrix_multiply_strassen_parallel(&aux2, &b22, &p5);
+    }
+  }
 
-  matrix_subtract(&b21, &b11, &aux1);
-  matrix_multiply_strassen_internal_parallel(&a22, &aux1, &p4, remaining_buffer);
+#pragma omp parallel sections
+  {
+    #pragma omp section
+    {
+      matrix_subtract_parallel(&a21, &a11, &aux1);
+    }
+    #pragma omp section
+    {
+      matrix_add_parallel(&b11, &b12, &aux2);
+    }
+  }
 
-  matrix_add_parallel(&a11, &a12, &aux2);
-  matrix_multiply_strassen_internal_parallel(&aux2, &b22, &p5, remaining_buffer);
+  matrix_multiply_strassen_parallel(&aux1, &aux2, &p6);
 
-  matrix_subtract(&a21, &a11, &aux1);
-  matrix_add_parallel(&b11, &b12, &aux2);
-  matrix_multiply_strassen_internal_parallel(&aux1, &aux2, &p6, remaining_buffer);
+#pragma omp parallel sections
+  {
+    #pragma omp section
+    {
+      matrix_subtract_parallel(&a12, &a22, &aux1);
+    }
+    #pragma omp section
+    {
+      matrix_add_parallel(&b21, &b22, &aux2);
+    }
+  }
 
-  matrix_subtract(&a12, &a22, &aux1);
-  matrix_add_parallel(&b21, &b22, &aux2);
-  matrix_multiply_strassen_internal_parallel(&aux1, &aux2, &p7, remaining_buffer);
+  matrix_multiply_strassen_parallel(&aux1, &aux2, &p7);
 
+  #pragma omp parallel for if (mid > THRESHOLD)
   for (size_t i = 0; i < mid; ++i) {
+    #pragma omp parallel for if (mid > THRESHOLD)
     for (size_t j = 0; j < mid; ++j) {
       matrix_set(c, i, j, matrix_get(&p1, i, j) + matrix_get(&p4, i, j) - matrix_get(&p5, i, j) + matrix_get(&p7, i, j));
       matrix_set(c, i, j + mid, matrix_get(&p3, i, j) + matrix_get(&p5, i, j));
@@ -127,11 +186,6 @@ void matrix_multiply_strassen_internal_parallel(Matrix* a, Matrix* b, Matrix* c,
   }
 }
 
-void matrix_multiply_strassen_parallel(Matrix* a, Matrix* b, Matrix* c) {
-  T* buffer = malloc(4 * a->size * a->size * sizeof(T));
-  matrix_multiply_strassen_internal_parallel(a, b, c, buffer);
-  free(buffer);
-}
 
 int main(int argc, char* argv[]) {
   if (argc != 3) {
@@ -181,6 +235,13 @@ int main(int argc, char* argv[]) {
       (double)(ts_end.tv_sec - ts_start.tv_sec) +
       ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
 
+  for (size_t i = 0; i < n * n; i++) {
+    if (fabs(c_data[i] - d_data[i]) > 0.001) {
+      printf("Erro: c[%zu] = %lf != %lf = d[%zu]\n", i, c_data[i], d_data[i], i);
+      return 1;
+    }
+  }
+
   clock_gettime(CLOCK_MONOTONIC, &ts_start);
   matrix_multiply_strassen(&a, &b, &c);
   clock_gettime(CLOCK_MONOTONIC, &ts_end);
@@ -188,15 +249,15 @@ int main(int argc, char* argv[]) {
       (double)(ts_end.tv_sec - ts_start.tv_sec) +
       ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
 
-  // clock_gettime(CLOCK_MONOTONIC, &ts_start);
-  // matrix_multiply_strassen_parallel(&a, &b, &c);
-  // clock_gettime(CLOCK_MONOTONIC, &ts_end);
-  // double time_spent_strassen_parallel =
-  //     (double)(ts_end.tv_sec - ts_start.tv_sec) +
-  //     ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
+  clock_gettime(CLOCK_MONOTONIC, &ts_start);
+  matrix_multiply_strassen_parallel(&a, &b, &c);
+  clock_gettime(CLOCK_MONOTONIC, &ts_end);
+  double time_spent_strassen_parallel =
+      (double)(ts_end.tv_sec - ts_start.tv_sec) +
+      ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
 
   clock_gettime(CLOCK_MONOTONIC, &ts_start);
-  matrix_multiply_transposed(&a, &b, &d);
+  matrix_multiply_transposed(&a, &b, &c);
   clock_gettime(CLOCK_MONOTONIC, &ts_end);
   double time_spent_transposed =
       (double)(ts_end.tv_sec - ts_start.tv_sec) +
@@ -216,8 +277,8 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // printf("%lf,%lf,%lf,%lf,%lf,%lf\n", time_spent_classic, time_spent_parallel, time_spent_strassen, time_spent_strassen_parallel, time_spent_transposed, time_spent_transposed_parallel);
-  printf("%lf,%lf,%lf,%lf,%lf\n", time_spent_classic, time_spent_parallel, time_spent_strassen, time_spent_transposed, time_spent_transposed_parallel);
+  printf("%lf,%lf,%lf,%lf,%lf,%lf\n", time_spent_classic, time_spent_parallel, time_spent_strassen, time_spent_strassen_parallel, time_spent_transposed, time_spent_transposed_parallel);
+  // printf("%lf,%lf,%lf,%lf,%lf\n", time_spent_classic, time_spent_parallel, time_spent_strassen, time_spent_transposed, time_spent_transposed_parallel);
 
   free(a_data);
   free(b_data);

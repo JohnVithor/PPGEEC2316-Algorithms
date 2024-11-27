@@ -3,8 +3,9 @@
 #include "matrix.h"
 
 void matrix_multiply_strassen_internal(Matrix* a, Matrix* b, Matrix* c, T* buffer) {
-  if (a->size == 1) {
-    matrix_set(c, 0, 0, matrix_get(a, 0, 0) * matrix_get(b, 0, 0));
+  if (a->size <= 256) {
+    matrix_multiply(a, b, c);
+    // matrix_set(c, 0, 0, matrix_get(a, 0, 0) * matrix_get(b, 0, 0));
     return;
   }
 
