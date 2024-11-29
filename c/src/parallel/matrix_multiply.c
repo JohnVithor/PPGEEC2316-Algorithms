@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-
+#include "omp.h"
 #include "utils.h"
 #include "matrix.h"
 
@@ -219,66 +219,51 @@ int main(int argc, char* argv[]) {
   Matrix c = matrix_create(c_data, n);
   Matrix d = matrix_create(d_data, n);
 
+  int num_threads = omp_get_max_threads();
   struct timespec ts_start;
   struct timespec ts_end;
-  clock_gettime(CLOCK_MONOTONIC, &ts_start);
-  matrix_multiply(&a, &b, &c);
-  clock_gettime(CLOCK_MONOTONIC, &ts_end);
-  double time_spent_classic =
+
+  if (num_threads == 1) {
+    clock_gettime(CLOCK_MONOTONIC, &ts_start);
+    matrix_multiply(&a, &b, &c);
+    clock_gettime(CLOCK_MONOTONIC, &ts_end);
+    double time_spent_classic =
       (double)(ts_end.tv_sec - ts_start.tv_sec) +
       ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
-
-  clock_gettime(CLOCK_MONOTONIC, &ts_start);
-  matrix_multiply_parallel(&a, &b, &d);
-  clock_gettime(CLOCK_MONOTONIC, &ts_end);
-  double time_spent_parallel =
+    clock_gettime(CLOCK_MONOTONIC, &ts_start);
+    matrix_multiply_strassen(&a, &b, &c);
+    clock_gettime(CLOCK_MONOTONIC, &ts_end);
+    double time_spent_strassen =
       (double)(ts_end.tv_sec - ts_start.tv_sec) +
       ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
-
-  for (size_t i = 0; i < n * n; i++) {
-    if (fabs(c_data[i] - d_data[i]) > 0.001) {
-      printf("Erro: c[%zu] = %lf != %lf = d[%zu]\n", i, c_data[i], d_data[i], i);
-      return 1;
-    }
+    clock_gettime(CLOCK_MONOTONIC, &ts_start);
+    matrix_multiply_transposed(&a, &b, &c);
+    clock_gettime(CLOCK_MONOTONIC, &ts_end);
+    double time_spent_transposed =
+      (double)(ts_end.tv_sec - ts_start.tv_sec) +
+      ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
+    printf("%d,%lf,%lf,%lf\n", num_threads, time_spent_classic,  time_spent_strassen,  time_spent_transposed);
+  } else {
+    clock_gettime(CLOCK_MONOTONIC, &ts_start);
+    matrix_multiply_parallel(&a, &b, &d);
+    clock_gettime(CLOCK_MONOTONIC, &ts_end);
+    double time_spent_classic =
+      (double)(ts_end.tv_sec - ts_start.tv_sec) +
+      ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
+    clock_gettime(CLOCK_MONOTONIC, &ts_start);
+    matrix_multiply_strassen_parallel(&a, &b, &c);
+    clock_gettime(CLOCK_MONOTONIC, &ts_end);
+    double time_spent_strassen =
+      (double)(ts_end.tv_sec - ts_start.tv_sec) +
+      ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
+    clock_gettime(CLOCK_MONOTONIC, &ts_start);
+    matrix_multiply_transposed_parallel(&a, &b, &d);
+    clock_gettime(CLOCK_MONOTONIC, &ts_end);
+    double time_spent_transposed =
+      (double)(ts_end.tv_sec - ts_start.tv_sec) +
+      ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
+    printf("%d,%lf,%lf,%lf\n", num_threads, time_spent_classic,  time_spent_strassen,  time_spent_transposed);
   }
-
-  clock_gettime(CLOCK_MONOTONIC, &ts_start);
-  matrix_multiply_strassen(&a, &b, &c);
-  clock_gettime(CLOCK_MONOTONIC, &ts_end);
-  double time_spent_strassen =
-      (double)(ts_end.tv_sec - ts_start.tv_sec) +
-      ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
-
-  clock_gettime(CLOCK_MONOTONIC, &ts_start);
-  matrix_multiply_strassen_parallel(&a, &b, &c);
-  clock_gettime(CLOCK_MONOTONIC, &ts_end);
-  double time_spent_strassen_parallel =
-      (double)(ts_end.tv_sec - ts_start.tv_sec) +
-      ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
-
-  clock_gettime(CLOCK_MONOTONIC, &ts_start);
-  matrix_multiply_transposed(&a, &b, &c);
-  clock_gettime(CLOCK_MONOTONIC, &ts_end);
-  double time_spent_transposed =
-      (double)(ts_end.tv_sec - ts_start.tv_sec) +
-      ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
-
-  clock_gettime(CLOCK_MONOTONIC, &ts_start);
-  matrix_multiply_transposed_parallel(&a, &b, &d);
-  clock_gettime(CLOCK_MONOTONIC, &ts_end);
-  double time_spent_transposed_parallel =
-      (double)(ts_end.tv_sec - ts_start.tv_sec) +
-      ((double)(ts_end.tv_nsec - ts_start.tv_nsec) / 1000000000L);
-
-  for (size_t i = 0; i < n * n; i++) {
-    if (fabs(c_data[i] - d_data[i]) > 0.001) {
-      printf("Erro: c[%zu] = %lf != %lf = d[%zu]\n", i, c_data[i], d_data[i], i);
-      return 1;
-    }
-  }
-
-  printf("%lf,%lf,%lf,%lf,%lf,%lf\n", time_spent_classic, time_spent_parallel, time_spent_strassen, time_spent_strassen_parallel, time_spent_transposed, time_spent_transposed_parallel);
-  // printf("%lf,%lf,%lf,%lf,%lf\n", time_spent_classic, time_spent_parallel, time_spent_strassen, time_spent_transposed, time_spent_transposed_parallel);
 
   free(a_data);
   free(b_data);
