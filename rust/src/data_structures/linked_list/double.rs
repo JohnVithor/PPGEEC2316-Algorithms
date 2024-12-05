@@ -35,7 +35,7 @@ impl<T> Node<T> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LinkedList<T> {
     front: Link<T>,
     back: Link<T>,
