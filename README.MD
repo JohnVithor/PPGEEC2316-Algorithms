@@ -61,3 +61,19 @@
 2. Mostre experimentalmente que a taxa de competitividade do algoritmo de uso menos recente tem taxa de competitividade independente do tamanho da entrada para o mecanismo de memória cache.
 
 3. Compare o desempenho do algoritmo de marcação aleatória com o algoritmo de uso menos recente para qualquer um dos programas que já implementou na disciplina. Dica: extraia o traço de memória do seu programa e use-o como entrada para a sua comparação. 
+
+# Questões 9
+
+1. Implemente os algoritmos de resolução de sistemas lineares por substituição direta e reversa;
+
+2. Implemente o algoritmo de decomposição LUP;
+
+3. Use os algoritmos que implementou nessa lista e crie uma rotina para calcular a inversa de uma matriz nxn não-singular qualquer, verificando o resultado com o auxílio de algum algoritmo de multiplicação de matrizes que já implementou.
+
+# Questões 10
+
+1. Formule um problema de programação linear e desenvolva um programa para obter a matriz do tableau; 
+
+2. Desenvolva um programa para obter a solução ótima do problema primal a partir do tableau; 
+
+3. Obtenha o problema dual associado e a matriz do tableau do problema dual. Ache a solução ótima do problema dual com o tableau.
