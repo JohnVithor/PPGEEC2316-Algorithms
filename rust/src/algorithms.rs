@@ -1,6 +1,7 @@
 pub mod compression;
 pub mod graph;
 pub mod intervals;
+pub mod linear_algebra;
 pub mod minimum_maximum;
 pub mod online;
 pub mod selection;
