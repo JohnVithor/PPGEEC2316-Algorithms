@@ -1,20 +1,11 @@
-use std::{env::args, fmt::Debug, time::Instant};
+use std::{env::args, time::Instant};
 
 use algorithms::{
-    algorithms::online::move_to_front::{search_element_foresee, search_element_move_to_front},
+    algorithms::online::move_to_front::{
+        foresee_on_move_to_front_worst_case, move_to_front_simulation_on_list,
+    },
     data_structures::linked_list::double::LinkedList,
 };
-
-fn print_list<T: Debug>(list: &mut LinkedList<T>) {
-    let mut current = list.start_link();
-    while let Some(node) = current {
-        unsafe {
-            print!("{:?} ", node.as_ref().value);
-            current = &mut node.as_mut().next;
-        }
-    }
-    println!();
-}
 
 fn main() -> Result<(), ()> {
     let args: Vec<String> = args().collect();
@@ -41,35 +32,17 @@ fn main() -> Result<(), ()> {
         }
     }
 
-    println!("Data size: {}", size);
+    let access_sequence: Vec<usize> = (0..size).rev().collect();
 
     let start = Instant::now();
-    let r1 = search_element_move_to_front(&mut list1, 5);
-    let time_spent_rand = start.elapsed().as_secs_f64();
-    println!("Tempo gasto: {}", time_spent_rand);
-    println!("Resultado: {:?}", r1);
-    print_list(&mut list1);
+    let mtf_cost = move_to_front_simulation_on_list(&mut list1, &access_sequence);
+    let time_spent_mtf = start.elapsed().as_secs_f64();
 
     let start = Instant::now();
-    let r1 = search_element_move_to_front(&mut list1, 5);
-    let time_spent_rand = start.elapsed().as_secs_f64();
-    println!("Tempo gasto: {}", time_spent_rand);
-    println!("Resultado: {:?}", r1);
-    print_list(&mut list1);
+    let foresee_cost = foresee_on_move_to_front_worst_case(&mut list2, &access_sequence);
+    let time_spent_foresee = start.elapsed().as_secs_f64();
 
-    let start = Instant::now();
-    let r1 = search_element_foresee(&mut list2, 5, 5);
-    let time_spent_rand = start.elapsed().as_secs_f64();
-    println!("Tempo gasto: {}", time_spent_rand);
-    println!("Resultado: {:?}", r1);
-    print_list(&mut list2);
-
-    let start = Instant::now();
-    let r1 = search_element_foresee(&mut list2, 5, 5);
-    let time_spent_rand = start.elapsed().as_secs_f64();
-    println!("Tempo gasto: {}", time_spent_rand);
-    println!("Resultado: {:?}", r1);
-    print_list(&mut list2);
+    println!("{size},{mtf_cost},{foresee_cost},{time_spent_mtf},{time_spent_foresee}");
 
     Ok(())
 }

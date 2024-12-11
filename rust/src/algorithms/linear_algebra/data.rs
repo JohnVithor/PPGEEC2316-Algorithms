@@ -18,6 +18,31 @@ where
             data: [default; R * C],
         }
     }
+
+    pub fn swap(&mut self, i: (usize, usize), j: (usize, usize)) {
+        self.data.swap(i.0 * C + i.1, j.0 * C + j.1);
+    }
+}
+
+impl<const S: usize> Matrix<S, S>
+where
+    [(); S * S]:,
+{
+    pub fn lu(self) -> (Matrix<S, S>, Matrix<S, S>)
+    where
+        [(); S * S]:,
+    {
+        let mut l = Matrix::new(0.0);
+        let mut u = self;
+        for k in 0..S {
+            l[(k, k)] = 1.0;
+            for i in (k + 1)..S {
+                l[(i, k)] = u[(i, k)];
+                u[(i, k)] = 0.0;
+            }
+        }
+        (l, u)
+    }
 }
 
 impl<const R: usize, const C: usize> std::ops::Index<(usize, usize)> for Matrix<R, C>

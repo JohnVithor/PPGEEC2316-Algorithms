@@ -1,4 +1,4 @@
-use std::{mem::swap, ptr::NonNull, vec};
+use std::{hash::Hash, mem::swap, ptr::NonNull};
 
 use crate::data_structures::linked_list::double::{LinkedList, Node};
 
@@ -16,15 +16,15 @@ pub fn swap_previous_next<T>(node: &mut NonNull<Node<T>>) -> usize {
     cost
 }
 
-pub fn search_element_move_to_front<K: PartialEq, V: Copy>(
+pub fn move_to_front<K: PartialEq, V: Copy>(
     list: &mut LinkedList<(K, V)>,
-    key: K,
+    key: &K,
 ) -> (Option<V>, usize) {
     let mut cost = 0;
     let mut current = list.start_link();
     while let Some(node) = current {
         unsafe {
-            if node.as_ref().value.0 == key {
+            if node.as_ref().value.0 == *key {
                 cost += swap_previous_next(node);
                 let value = list.start_link().unwrap().as_ref().value.1;
                 return (Some(value), cost);
@@ -36,52 +36,43 @@ pub fn search_element_move_to_front<K: PartialEq, V: Copy>(
     (None, cost)
 }
 
-pub fn search_element_foresee<K: PartialEq, V: Copy>(
-    list: &mut LinkedList<(K, V)>,
-    key: K,
-    future: K,
-) -> (Option<V>, usize) {
-    let mut cost = 0;
-    let mut future_ok = false;
-    let mut result = None;
-    let mut current = list.start_link();
-    while let Some(node) = current {
-        unsafe {
-            if node.as_ref().value.0 == key {
-                result = Some(node.as_ref().value.1);
-            }
-            if !future_ok && node.as_ref().value.0 == future {
-                cost += swap_previous_next(node);
-                future_ok = true;
-            }
-            current = &mut node.as_mut().next;
-            cost += 1;
-        }
-        if result.is_some() && future_ok {
-            break;
-        }
-    }
-    (result, cost)
-}
-
-pub fn calculate_futures<K: PartialEq, V: Copy>(
-    list: &mut LinkedList<(K, V)>,
-    futures: &[K],
-) -> Vec<Option<usize>> {
-    let mut result = vec![];
-    for f in futures {
-        let mut search_cost = 0;
-        let mut current = list.start_link();
+/// O pior caso do algoritmo move-to-front é quando o próximo elemento a ser acessado é o último elemento na organização atual da lista
+/// Nesse caso, o algoritmo move-to-front terá que percorrer toda a lista para encontrar o elemento
+/// E em seguida terá que percorrer a lista novamente para trazer o elemento para frente
+/// Enquanto que o algoritmo foresse nessa situação simplesmente não traria o elemento para frente
+pub fn foresee_on_move_to_front_worst_case<K: Eq + Hash, V: Copy>(
+    search_list: &mut LinkedList<(K, V)>,
+    search_sequence: &[K],
+) -> usize {
+    // Fórmula analítica do custo nessa situação: (1+search_list)*search_list/2*search_sequence/search_list
+    // Abaixo: Simulação do custo
+    let mut acc_cost = 0;
+    for key in search_sequence {
+        let mut current = search_list.start_link();
+        acc_cost += 1;
         while let Some(node) = current {
             unsafe {
-                if node.as_ref().value.0 == *f {
-                    result.push(Some(search_cost));
+                if node.as_ref().value.0 == *key {
                     break;
                 }
                 current = &mut node.as_mut().next;
-                search_cost += 1;
+                acc_cost += 1;
             }
         }
     }
-    result
+    acc_cost
+}
+
+pub fn move_to_front_simulation_on_list<K: Eq + Hash, V: Copy>(
+    search_list: &mut LinkedList<(K, V)>,
+    search_sequence: &[K],
+) -> usize {
+    // Fórmula analítica do custo no pior caso: (search_sequence+search_sequence-1)*search_list
+    // Abaixo: Simulação do custo
+    let mut acc_cost = 0;
+    for key in search_sequence {
+        let (_, cost) = move_to_front(search_list, key);
+        acc_cost += cost;
+    }
+    acc_cost
 }

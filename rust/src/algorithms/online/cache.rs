@@ -3,6 +3,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 pub enum Cache<K: Eq + std::hash::Hash, V: Copy> {
     LRUCache(LRUCache<K, V>),
     OracleCache(OracleCache<K, V>),
+    MarkCache(MarkCache<K, V>),
 }
 
 impl<K: Eq + std::hash::Hash + Copy, V: Copy> Cache<K, V> {
@@ -10,18 +11,21 @@ impl<K: Eq + std::hash::Hash + Copy, V: Copy> Cache<K, V> {
         match self {
             Cache::LRUCache(cache) => cache.get(key),
             Cache::OracleCache(cache) => cache.get(key),
+            Cache::MarkCache(cache) => cache.get(key),
         }
     }
     fn put(&mut self, key: K, value: V) {
         match self {
             Cache::LRUCache(cache) => cache.put(key, value),
             Cache::OracleCache(cache) => cache.put(key, value),
+            Cache::MarkCache(cache) => cache.put(key, value),
         }
     }
     fn _remove(&mut self, key: &K) {
         match self {
             Cache::LRUCache(cache) => cache.remove(key),
             Cache::OracleCache(cache) => cache.remove(key),
+            Cache::MarkCache(cache) => cache.remove(key),
         }
     }
 }
@@ -153,6 +157,63 @@ impl<K: Copy + Eq + std::hash::Hash, V: Copy> OracleCache<K, V> {
 
     pub fn remove(&mut self, key: &K) {
         self.cache.retain(|(k, _)| k != key);
+    }
+}
+
+pub struct MarkCache<K, V> {
+    cache: VecDeque<(K, V, bool)>,
+    capacity: usize,
+}
+
+impl<K: Copy + Eq, V: Copy> MarkCache<K, V> {
+    pub fn new(capacity: usize) -> Self {
+        Self {
+            cache: VecDeque::with_capacity(capacity),
+            capacity,
+        }
+    }
+
+    pub fn get(&mut self, key: &K) -> (Option<V>, usize) {
+        let mut cost = 0;
+        for (k, v, m) in &mut self.cache {
+            if *k == *key {
+                *m = true;
+                return (Some(*v), cost);
+            }
+            cost += 1;
+        }
+
+        (None, cost)
+    }
+
+    pub fn put(&mut self, key: K, value: V) {
+        if self.cache.len() == self.capacity {
+            let mut marking = true;
+            for (_, _, m) in &mut self.cache {
+                marking &= *m;
+            }
+            if marking {
+                for (_, _, m) in &mut self.cache {
+                    *m = false;
+                }
+            }
+            let options: Vec<usize> = self
+                .cache
+                .iter()
+                .enumerate()
+                .filter(|(_, (_, _, m))| !m)
+                .map(|(i, _)| i)
+                .collect();
+            let i = fastrand::usize(0..options.len());
+
+            self.cache[options[i]] = (key, value, true);
+        } else {
+            self.cache.push_front((key, value, true));
+        }
+    }
+
+    pub fn remove(&mut self, key: &K) {
+        self.cache.retain(|(k, _, _)| k != key);
     }
 }
 
