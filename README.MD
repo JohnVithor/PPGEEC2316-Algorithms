@@ -77,3 +77,12 @@
 2. Desenvolva um programa para obter a solução ótima do problema primal a partir do tableau; 
 
 3. Obtenha o problema dual associado e a matriz do tableau do problema dual. Ache a solução ótima do problema dual com o tableau.
+
+# Questões 11
+
+1. Implemente um algoritmo para computar a DFT de um polinômio qualquer. 
+
+2. Implemente o algoritmo da FFT e compare seu desempenho com o da DFT para diferentes tamanhos de problemas. 
+
+3. Escreva um programa que mostre que sua implementação da FFT está correta. Para isso, use a dualidade entre multiplicação e convolução nas representações de polinômios usando coeficientes e valor-ponto.
+
