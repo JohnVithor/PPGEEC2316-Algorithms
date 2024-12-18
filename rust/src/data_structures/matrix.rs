@@ -39,6 +39,10 @@ impl<'a, Item> std::ops::Index<(usize, usize)> for Matrix<'a, Item> {
     type Output = Item;
 
     fn index(&self, index: (usize, usize)) -> &Self::Output {
+        println!(
+            "{}",
+            &self.data[index.0 * self.stride + index.1] as *const Item as usize
+        );
         &self.data[index.0 * self.stride + index.1]
     }
 }
@@ -73,12 +77,20 @@ impl<'a, Item> std::ops::Index<(usize, usize)> for MutMatrix<'a, Item> {
     type Output = Item;
 
     fn index(&self, index: (usize, usize)) -> &Self::Output {
+        println!(
+            "{}",
+            &self.data[index.0 * self.stride + index.1] as *const Item as usize
+        );
         &self.data[index.0 * self.stride + index.1]
     }
 }
 
 impl<'a, Item> std::ops::IndexMut<(usize, usize)> for MutMatrix<'a, Item> {
     fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
+        println!(
+            "{}",
+            &self.data[index.0 * self.stride + index.1] as *const Item as usize
+        );
         &mut self.data[index.0 * self.stride + index.1]
     }
 }
