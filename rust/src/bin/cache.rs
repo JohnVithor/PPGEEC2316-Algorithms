@@ -34,18 +34,20 @@ fn main() -> Result<(), ()> {
     let mut oracle_cost = 0;
     let mut lru_cost = 0;
 
-    for i in access_sequence {
-        let (oracle_result, cost) = oracle.get(i);
+    let begin = std::time::Instant::now();
+    for i in &access_sequence {
+        let (_, cost) = oracle.get(*i);
         oracle_cost += cost;
-        let (lru_result, cost) = lru.get(i);
-        lru_cost += cost;
-        if oracle_result != lru_result {
-            println!("Erro: oracle {:?} != lru {:?}", oracle_result, lru_result);
-            return Err(());
-        }
     }
-    println!("Custo total oracle: {}", oracle_cost);
-    println!("Custo total lru: {}", lru_cost);
+    let oracle_time = begin.elapsed().as_secs_f64();
+    let begin = std::time::Instant::now();
 
+    for i in &access_sequence {
+        let (_, cost) = lru.get(*i);
+        lru_cost += cost;
+    }
+    let lru_time = begin.elapsed().as_secs_f64();
+
+    println!("{},{},{},{}", oracle_cost, lru_cost, oracle_time, lru_time);
     Ok(())
 }
