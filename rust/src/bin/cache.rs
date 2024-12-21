@@ -2,7 +2,7 @@ use std::env::args;
 
 use algorithms::algorithms::online::cache::{Cache, LRUCache, Memory, OracleCache};
 
-const SIZE: usize = 100;
+const SIZE: usize = 5_000;
 
 fn main() -> Result<(), ()> {
     let args: Vec<String> = args().collect();
