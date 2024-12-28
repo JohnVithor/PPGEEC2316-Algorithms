@@ -2,6 +2,7 @@ use std::fmt::Debug;
 
 const EPSILON: f64 = 1e-10;
 
+#[derive(Clone, Copy)]
 pub struct Matrix<const R: usize, const C: usize>
 where
     [(); R * C]:,
@@ -17,6 +18,14 @@ where
         Self {
             data: [default; R * C],
         }
+    }
+
+    pub fn identity() -> Self {
+        let mut data = [0.0; R * C];
+        for i in 0..R {
+            data[i * C + i] = 1.0;
+        }
+        Self { data }
     }
 
     pub fn swap(&mut self, i: (usize, usize), j: (usize, usize)) {

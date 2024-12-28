@@ -115,6 +115,7 @@ where
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
 
     #[test]
@@ -211,5 +212,39 @@ mod tests {
                 [0.0, 1.0, 0.0, 0.0],
             ])
         );
+    }
+
+    #[test]
+    fn test_inverse() {
+        let a = Matrix::from([
+            [-3.0, -1.0, 2.0, -3.0],
+            [-3.0, 1.0, 2.0, -2.0],
+            [-2.0, 3.0, 0.0, 1.0],
+            [1.0, -2.0, -3.0, 1.0],
+        ]);
+        let (lu, p) = lup_decomposition(a);
+        let (l, u) = lu.lu();
+        let mut inv: Matrix<4, 4> = Matrix::new(0.0);
+        for i in 0..4 {
+            let mut b = Vector::new(0.0);
+            b[i] = 1.0;
+            let y = forward_substitution(&l, &(&p * &b));
+            let x = backward_substitution(&u, &y);
+            for j in 0..4 {
+                inv[(j, i)] = x[j];
+            }
+        }
+        // Check that A * A^-1 = I
+        let mut r = Matrix::new(0.0);
+        for i in 0..4 {
+            for j in 0..4 {
+                r[(i, j)] = 0.0;
+                for k in 0..4 {
+                    r[(i, j)] += inv[(i, k)] * a[(k, j)];
+                }
+            }
+        }
+        let i: Matrix<4, 4> = Matrix::identity();
+        assert_eq!(r, i);
     }
 }
