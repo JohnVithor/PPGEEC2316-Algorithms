@@ -35,9 +35,6 @@ fn main() -> Result<(), ()> {
         .map(|_| LOWER_BOUND + (UPPER_BOUND - LOWER_BOUND) * fastrand::f64())
         .collect::<Vec<_>>();
 
-    // let a: Vec<Item> = (1..=(size * size)).map(|x| x as Item).collect();
-    // let mut b: Vec<Item> = (1..=(size * size)).map(|x| x as Item).collect();
-
     let mut c = vec![0.0; size * size];
     let mut d = vec![0.0; size * size];
     let mut buffer = vec![0.0; 4 * size * size];
@@ -47,13 +44,13 @@ fn main() -> Result<(), ()> {
     let mut matrix_c = MutMatrix::new(size, &mut c);
     let mut matrix_d = MutMatrix::new(size, &mut d);
 
-    // let now = Instant::now();
+    let now = Instant::now();
     strassen(&matrix_a, &matrix_b.as_matrix(), &mut matrix_c, &mut buffer);
-    // print!("{:.6?},", now.elapsed().as_secs_f64());
+    print!("{:.6?},", now.elapsed().as_secs_f64());
 
-    // let now = Instant::now();
+    let now = Instant::now();
     matrix_multiply(&matrix_a, &matrix_b.as_matrix(), &mut matrix_d);
-    // print!("{:.6?},", now.elapsed().as_secs_f64());
+    print!("{:.6?},", now.elapsed().as_secs_f64());
 
     for i in 0..size {
         for j in 0..size {
@@ -68,10 +65,10 @@ fn main() -> Result<(), ()> {
         }
     }
 
-    // let now = Instant::now();
+    let now = Instant::now();
     matrix_b.transpose();
     matrix_multiply_transposed(&matrix_a, &matrix_b.as_matrix(), &mut matrix_d);
     matrix_b.transpose();
-    // println!("{:.6?}", now.elapsed().as_secs_f64());
+    println!("{:.6?}", now.elapsed().as_secs_f64());
     Ok(())
 }

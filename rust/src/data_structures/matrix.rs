@@ -35,14 +35,14 @@ impl<'a, Item> Matrix<'a, Item> {
     }
 }
 
-impl<'a, Item> std::ops::Index<(usize, usize)> for Matrix<'a, Item> {
+impl<Item> std::ops::Index<(usize, usize)> for Matrix<'_, Item> {
     type Output = Item;
 
     fn index(&self, index: (usize, usize)) -> &Self::Output {
-        println!(
-            "{}",
-            &self.data[index.0 * self.stride + index.1] as *const Item as usize
-        );
+        // println!(
+        //     "{}",
+        //     &self.data[index.0 * self.stride + index.1] as *const Item as usize
+        // );
         &self.data[index.0 * self.stride + index.1]
     }
 }
@@ -73,24 +73,24 @@ impl<'a, Item> MutMatrix<'a, Item> {
     }
 }
 
-impl<'a, Item> std::ops::Index<(usize, usize)> for MutMatrix<'a, Item> {
+impl<Item> std::ops::Index<(usize, usize)> for MutMatrix<'_, Item> {
     type Output = Item;
 
     fn index(&self, index: (usize, usize)) -> &Self::Output {
-        println!(
-            "{}",
-            &self.data[index.0 * self.stride + index.1] as *const Item as usize
-        );
+        // println!(
+        //     "{}",
+        //     &self.data[index.0 * self.stride + index.1] as *const Item as usize
+        // );
         &self.data[index.0 * self.stride + index.1]
     }
 }
 
-impl<'a, Item> std::ops::IndexMut<(usize, usize)> for MutMatrix<'a, Item> {
+impl<Item> std::ops::IndexMut<(usize, usize)> for MutMatrix<'_, Item> {
     fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
-        println!(
-            "{}",
-            &self.data[index.0 * self.stride + index.1] as *const Item as usize
-        );
+        // println!(
+        //     "{}",
+        //     &self.data[index.0 * self.stride + index.1] as *const Item as usize
+        // );
         &mut self.data[index.0 * self.stride + index.1]
     }
 }
