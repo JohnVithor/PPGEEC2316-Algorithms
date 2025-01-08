@@ -1,4 +1,5 @@
 pub mod compression;
+pub mod fourier_transform;
 pub mod graph;
 pub mod intervals;
 pub mod linear_algebra;
